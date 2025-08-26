@@ -4,13 +4,9 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   { path: '', redirectTo: 'books', pathMatch: 'full' },
   {
-    path: 'books',
-    loadChildren: () => import('./pages/books/list/list.module').then(m => m.ListPageModule),
-  },
-  {
-    path: 'list',
-    loadChildren: () => import('./pages/books/list/list.module').then( m => m.ListPageModule)
-  },
+  path: 'books',
+  loadComponent: () => import('./pages/books/list/list.page').then(m => m.ListPage),
+},
 ];
 
 @NgModule({

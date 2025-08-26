@@ -1,41 +1,41 @@
-import api from './api.service';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators'; // <--- usa operadores
+import ApiService from './api.service';
 
-// Lo que devuelve tu backend (MySQL): id_libro, titulo, autor, ...
 export interface RawLibro {
   id_libro: number;
   titulo: string;
   autor: string;
-  isbn?: string;
-  anio_publicacion?: number;
-  estado?: string;
-  editorial?: string;
   genero?: string;
-  tipo_tapa?: string;
-  owner_nombre?: string;
 }
-
-// Modelo "amigable" para la app (id en vez de id_libro)
 export interface Libro {
   id: number;
   titulo: string;
   autor: string;
   genero?: string;
 }
+const mapLibro = (r: RawLibro): Libro => ({
+  id: r.id_libro,
+  titulo: r.titulo,
+  autor: r.autor,
+  genero: r.genero,
+});
 
-function mapLibro(r: RawLibro): Libro {
-  return {
-    id: r.id_libro,
-    titulo: r.titulo,
-    autor: r.autor,
-    genero: r.genero,
-  };
-}
+@Injectable({ providedIn: 'root' })
+export class BooksService {
+  constructor(private api: ApiService) {}
 
-class BooksService {
-  async list(query = ''): Promise<Libro[]> {
-    const { data } = await api.get<RawLibro[]>('/api/libros/', { params: { query } });
-    return data.map(mapLibro);
+  list(q = ''): Observable<Libro[]> {
+    const options = q ? { params: { query: q } } : undefined;
+    return this.api.get<RawLibro[]>('/api/libros/', options).pipe(
+      map((arr: RawLibro[]) => arr.map(mapLibro))
+    );
+  }
+
+  get(id: number): Observable<Libro> {
+    return this.api.get<RawLibro>(`/api/libros/${id}/`).pipe(
+      map((r: RawLibro) => mapLibro(r))
+    );
   }
 }
-
-export const booksService = new BooksService();

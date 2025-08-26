@@ -1,0 +1,95 @@
+# =====================
+# SISTEMA OPERATIVO
+# =====================
+.DS_Store
+Thumbs.db
+$RECYCLE.BIN/
+*.log
+log.txt
+
+# =====================
+# EDITORES / IDEs
+# =====================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+.c9/
+*.launch
+.history/
+
+# =====================
+# PYTHON / DJANGO BACKEND
+# =====================
+# Entornos virtuales
+.venv/
+venv/
+ENV/
+
+# Archivos compilados
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Migraciones de Django (opcional ignorar si no quieres versionarlas)
+#*/migrations/__pycache__/
+#*/migrations/*.pyc
+#*/migrations/*.pyo
+#*/migrations/*.pyd
+
+# Archivos sensibles / locales
+db.sqlite3
+.env
+*.env
+
+# Archivos estáticos y media
+staticfiles/
+media/
+
+# =====================
+# NODE / ANGULAR / IONIC FRONTEND
+# =====================
+node_modules/
+www/
+dist/
+out-tsc/
+tmp/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+.pnpm-debug.log*
+
+# Ionic
+/.ionic
+/platforms
+/plugins
+
+# Angular
+.angular/
+.angular/cache/
+.sass-cache/
+
+# =====================
+# TEST / COVERAGE
+# =====================
+coverage/
+*.lcov
+jest-coverage/
+reports/
+
+# =====================
+# VARIOS
+# =====================
+/typings
+/connect.lock
+/libpeerconnection.log
+testem.log

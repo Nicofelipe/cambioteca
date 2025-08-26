@@ -138,6 +138,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8100",
     "http://127.0.0.1:8100",
 ]
+# Si usas fetch con credenciales:
+CORS_ALLOW_CREDENTIALS = True
 
 # (opcional pero útil si activas CSRF)
 CSRF_TRUSTED_ORIGINS = [

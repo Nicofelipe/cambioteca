@@ -1,36 +1,35 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
-// 👇 Importa los componentes standalone de Ionic que usas en el HTML
-import {
-  IonContent,
-  IonHeader,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonSearchbar,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/angular/standalone';
-
-import { booksService, Libro } from '../../../core/services/books.service';
+import { IonContent, IonHeader, IonItem, IonLabel, IonList, IonSearchbar, IonTitle, IonToolbar } from '@ionic/angular/standalone';
+import { BooksService, Libro } from '../../../core/services/books.service';
 
 @Component({
-  selector: 'app-books-list',
+  selector: 'app-list',
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
-    // Ionic standalone:
+    CommonModule, FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent,
-    IonSearchbar, IonList, IonItem, IonLabel,
+    IonSearchbar, IonList, IonItem, IonLabel
   ],
   templateUrl: './list.page.html',
+  styleUrls: ['./list.page.scss']
 })
-export class ListPage implements OnInit {
+export class ListPage implements OnInit { 
   q = '';
+  loading = false;
   items: Libro[] = [];
-  async ngOnInit() { this.items = await booksService.list(); }
-  async search() { this.items = await booksService.list(this.q); }
+
+  constructor(private booksSvc: BooksService) {}
+  ngOnInit() { this.load(); }
+
+  load() {
+    this.loading = true;
+    this.booksSvc.list(this.q).subscribe({
+      next: (data) => { this.items = data; this.loading = false; },
+      error: () => { this.loading = false; }
+    });
+  }
+
+  search() { this.load(); }
 }

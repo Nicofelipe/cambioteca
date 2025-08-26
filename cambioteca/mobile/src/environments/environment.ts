@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'http://127.0.0.1:8000', // Django local
+  apiUrl: 'http://127.0.0.1:8000', // tu API local
 };
 
 /*

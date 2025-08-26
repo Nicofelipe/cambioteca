@@ -11,10 +11,8 @@ import { ListPage } from './list.page';
     CommonModule,
     FormsModule,
     IonicModule,
-    ListPageRoutingModule,
-    ListPage,            // importar la página standalone
+    ListPageRoutingModule
   ],
-  declarations: [],       // no declarar
+  declarations: [ListPage]
 })
 export class ListPageModule {}
-
