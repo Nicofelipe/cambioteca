@@ -1,3 +1,23 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-menu contentId="main" type="overlay">
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Menú</ion-title>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content>
+      <ion-list>
+        <ion-item routerLink="/home" routerDirection="root" routerLinkActive="activated">
+          Inicio
+        </ion-item>
+        <ion-item routerLink="/books" routerLinkActive="activated">
+          Libros
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-menu>
+
+  <!-- MUY IMPORTANTE: el id debe coincidir con contentId del ion-menu -->
+  <ion-router-outlet id="main"></ion-router-outlet>
 </ion-app>

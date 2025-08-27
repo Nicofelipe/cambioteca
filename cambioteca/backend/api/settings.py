@@ -17,6 +17,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    # nuestras apps (las crearemos en un rato)
+    # nuestras apps 
     'core',
     'market',
 ]
@@ -62,7 +63,7 @@ ROOT_URLCONF = 'api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,10 +85,10 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'cambioteca'),
-        'USER': os.getenv('DB_USER', 'root'),         # <-- CAMBIA
-        'PASSWORD': os.getenv('DB_PASS', 'Potopoto1.'),         # <-- CAMBIA
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),
+        'NAME': os.getenv('DB_NAME', ''),             #AGREGAR
+        'USER': os.getenv('DB_USER', ''),                   #AGREGAR
+        'PASSWORD': os.getenv('DB_PASS', ''),         #AGREGAR
+        'HOST': os.getenv('DB_HOST', '127.0.0.1'),             
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -131,7 +132,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# Static: carpeta /static para CSS/imagenes
+STATIC_URL = "static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Permitir llamadas desde Ionic (dev)
 CORS_ALLOWED_ORIGINS = [

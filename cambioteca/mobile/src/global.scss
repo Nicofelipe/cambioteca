@@ -1,37 +1,32 @@
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
- */
-
-/* Core CSS required for Ionic components to work properly */
+/* Core Ionic */
 @import "@ionic/angular/css/core.css";
-
-/* Basic CSS for apps built with Ionic */
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
-
-/* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* Siempre modo claro */
+html { color-scheme: light; }
+body { background: var(--app-bg); color: var(--app-text); }
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* Enlaces y hover global */
+a, .link { color: var(--app-text); text-decoration: none; }
+a:hover, .link:hover { background: var(--app-accent); border-radius: 6px; }
+
+/* Hovers suaves en web */
+ion-item:hover,
+ion-card:hover,
+ion-button:hover::part(native) {
+  background: color-mix(in srgb, var(--app-accent) 45%, transparent);
+}
+
+/* Botones “secundarios” suaves basados en muted */
+.btn-muted {
+  --background: var(--app-muted);
+  --color: var(--app-text);
+}

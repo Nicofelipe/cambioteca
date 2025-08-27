@@ -1,2 +1,55 @@
-// For information on how to create your own theme, please see:
-// http://ionicframework.com/docs/theming/
+:root {
+  /* ===== Paleta Cambioteca ===== */
+  --app-menu-bg: #896C6C;   /* menú lateral oscuro */
+  --app-accent: #E4BDB4;    /* hover / selección */
+  --app-muted: #BEBBA1;     /* detalles */
+  --app-text: #2b2b2b;      /* texto general */
+  --app-bg: #ffffff;        /* fondo principal */
+
+  /* Ionic base */
+  --ion-background-color: var(--app-bg);   /* 👈 contenido SIEMPRE blanco */
+  --ion-text-color: var(--app-text);
+
+  --ion-color-primary: var(--app-menu-bg);
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-secondary: var(--app-accent);
+  --ion-color-secondary-contrast: #2b2b2b;
+}
+
+/* ===== MENÚ lateral ===== */
+ion-menu {
+  --background: var(--app-menu-bg);
+  color: #fff;
+
+  ion-toolbar {
+    --background: var(--app-menu-bg);
+    --color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  ion-content,
+  ion-list {
+    --background: var(--app-menu-bg);  /* 👈 fondo oscuro solo del menú */
+    color: #fff;
+  }
+
+  ion-item {
+    --background: transparent;
+    --color: #fff;
+
+    &:hover {
+      --background: var(--app-accent);
+      --color: #2b2b2b;
+    }
+
+    &.activated,
+    &.item-active {
+      --background: var(--app-accent);
+      --color: #2b2b2b;
+    }
+  }
+
+  ion-icon {
+    color: currentColor;
+  }
+}

@@ -1,0 +1,63 @@
+.hero {
+  text-align: center;
+  padding: 32px 16px 24px;
+  background: #fff;   /* 👈 fondo blanco */
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+
+  img {
+    width: 120px;
+    height: auto;
+    margin: 12px auto 16px;
+    display: block;
+    border-radius: 0;   /* 👈 sin esquinas redondeadas, logo tal cual */
+    box-shadow: none;   /* 👈 sin sombra extra en el logo */
+  }
+
+  h2 {
+    margin: 0 0 8px;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--app-text);
+  }
+
+  p {
+    margin: 0 0 16px;
+    color: color-mix(in srgb, var(--app-text) 60%, #fff);
+  }
+
+  ion-searchbar {
+    --background: var(--app-muted);   /* 👈 verde de tu paleta */
+    --color: var(--app-text);
+    --placeholder-color: color-mix(in srgb, var(--app-text) 60%, #fff);
+    --border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 12px;
+  }
+}
+
+
+.block {
+  padding: 16px 12px;
+  margin: 16px 0;
+  background: #fff;              /* 👈 cada bloque blanco sobre fondo muted */
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.05);
+
+  &-title {
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 8px;
+    h3 { margin: 0; font-size: 1.7rem; font-weight: 600; color: var(--app-text); }
+  }
+
+  p { text-align: justify; line-height: 1.5; color: var(--app-text); }
+}
+
+/* Redes sociales: darle otro fondo suave */
+.block.social {
+  background: var(--app-muted);   /* 👈 contraste con los otros bloques */
+  border-radius: 16px;
+  padding: 20px 12px;
+
+  h3 { margin-bottom: 12px; color: var(--app-text); }
+}

@@ -14,3 +14,21 @@ class LibroViewSet(viewsets.ReadOnlyModelViewSet):
         if q:
             qs = qs.filter(Q(titulo__icontains=q) | Q(autor__icontains=q) | Q(genero__icontains=q))
         return qs
+
+def home(request):
+    # Últimos agregados
+    latest_books_qs = (
+        Libro.objects.order_by("-id_libro")[:10]
+        .prefetch_related(
+            Prefetch("imagenlibro_set", queryset=ImagenLibro.objects.order_by("id_imagen"))
+        )
+    )
+
+    # Populares (placeholder): usa tu métrica real cuando esté lista
+    popular_books_qs = Libro.objects.order_by("-id_libro")[:8]
+
+    context = {
+        "latest_books": latest_books_qs,
+        "popular_books": popular_books_qs,
+    }
+    return render(request, "home.html", context)

@@ -19,5 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('market.urls')),
+    # tus APIs:
+    path('api/', include('market.urls')),   # si ya tienes urls de market
+    # path('api/', include('core.urls')),   # si tienes urls de core
 ]

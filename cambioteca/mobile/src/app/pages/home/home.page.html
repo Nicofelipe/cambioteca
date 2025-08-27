@@ -1,0 +1,109 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>Cambioteca</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="buscar()">
+        <ion-icon name="search-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="home-content" [fullscreen]="true">
+  <!-- Presentación / logo -->
+  <section class="hero">
+    <!-- usa la ruta de assets -->
+    <img src="assets/icon/cambiotecasimple.png" alt="Logo" loading="lazy" />
+    <h2>Intercambia libros fácil y rápido</h2>
+    <p>Descubre, intercambia y da una segunda vida a tus libros favoritos.</p>
+
+    <ion-searchbar [(ngModel)]="q" placeholder="Buscar por título o autor" (ionInput)="buscar()"
+      debounce="400"></ion-searchbar>
+  </section>
+
+  <!-- Últimos agregados -->
+  <section class="block">
+    <div class="block-title">
+      <h3>Últimos agregados</h3>
+      <ion-spinner *ngIf="loading" name="dots"></ion-spinner>
+    </div>
+
+    <swiper-container slides-per-view="1.1" space-between="12" centered-slides="true" style="display:block"
+      *ngIf="ultimos?.length; else noUltimos">
+      <swiper-slide *ngFor="let b of ultimos; trackBy: trackByLibro">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>{{ b.titulo }}</ion-card-title>
+            <ion-card-subtitle>{{ b.autor }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-chip *ngIf="b.genero">{{ b.genero }}</ion-chip>
+          </ion-card-content>
+        </ion-card>
+      </swiper-slide>
+    </swiper-container>
+
+    <ng-template #noUltimos>
+      <ion-text color="medium">
+        <p>No hay libros recientes aún.</p>
+      </ion-text>
+    </ng-template>
+  </section>
+
+  <!-- Populares -->
+  <section class="block">
+    <div class="block-title">
+      <h3>Populares</h3>
+      <ion-spinner *ngIf="loadingPopulares" name="dots"></ion-spinner>
+    </div>
+
+    <ion-list>
+      <ion-item *ngFor="let b of populares; trackBy: trackByLibro">
+        <ion-label>
+          <h4>{{ b.titulo }}</h4>
+          <p>
+            {{ b.autor }}
+            <span *ngIf="b.genero">• {{ b.genero }}</span>
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </section>
+
+  <!-- Sobre nosotros -->
+  <section class="block">
+    <div class="block-title">
+      <h3>Sobre nosotros</h3>
+    </div>
+    <p>
+      Somos una comunidad que promueve la lectura circular. Únete, comparte y
+      encuentra tu próxima lectura.
+    </p>
+  </section>
+
+  <!-- Redes -->
+  <section class="block social">
+    <h3>Encuéntranos</h3>
+    <div class="row">
+      <ion-button fill="clear">
+        <ion-icon slot="start" name="logo-instagram"></ion-icon>
+        Instagram
+      </ion-button>
+      <ion-button fill="clear">
+        <ion-icon slot="start" name="logo-facebook"></ion-icon>
+        Facebook
+      </ion-button>
+      <ion-button fill="clear">
+        <ion-icon slot="start" name="logo-twitter"></ion-icon>
+        X/Twitter
+      </ion-button>
+    </div>
+  </section>
+
+  <div style="height: 24px"></div>
+</ion-content>
