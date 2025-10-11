@@ -35,7 +35,7 @@
             <h2 class="ttl">{{ b.titulo }}</h2>
             <p class="muted">de {{ b.autor }}</p>
             <p class="muted">Editorial: {{ b.editorial }} · {{ b.tipo_tapa }}</p>
-            <p class="muted">Género: {{ b.genero }}</p>
+            <p class="muted">Género: {{ b.genero || b.genero_nombre || '—' }}</p>
             <p class="desc">{{ b.descripcion }}</p>
 
             <div class="meta">

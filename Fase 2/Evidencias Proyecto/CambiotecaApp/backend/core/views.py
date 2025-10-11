@@ -19,7 +19,7 @@ from .serializers import (
     UsuarioLiteSerializer, UsuarioSummarySerializer
 )
 
-from market.models import Libro, Intercambio, Clasificacion
+from market.models import Libro, Intercambio, Calificacion
 
 import jwt
 import datetime
@@ -123,6 +123,7 @@ def login_view(request):
             "imagen_perfil": user.imagen_perfil,
             "avatar_url": avatar_url,
             "verificado": user.verificado,
+            "es_admin": bool(user.es_admin),
         }
     })
 
@@ -304,7 +305,7 @@ def user_profile_view(request, user_id: int):
         Q(estado_intercambio='Completado')
     ).count()
 
-    agg = Clasificacion.objects.filter(id_usuario_calificado_id=user_id).aggregate(
+    agg = Calificacion.objects.filter(id_usuario_calificado_id=user_id).aggregate(
         avg=Avg('puntuacion'), total=Count('id_clasificacion')
     )
     rating_avg = float(agg['avg']) if agg['avg'] is not None else None
@@ -406,7 +407,7 @@ def user_summary(request, id: int):
         Q(estado_intercambio='Completado')
     ).count()
 
-    rating = (Clasificacion.objects
+    rating = (Calificacion.objects
               .filter(id_usuario_calificado=id)
               .aggregate(avg=Avg("puntuacion"))
               .get("avg") or 0)

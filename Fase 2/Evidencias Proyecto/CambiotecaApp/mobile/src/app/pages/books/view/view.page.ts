@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AlertController,
   IonBackButton, IonButton, IonButtons, IonContent, IonHeader,
-  IonImg, IonItem, IonLabel, IonList, IonMenuButton, IonTitle, IonToolbar,
+  IonItem, IonLabel, IonList, IonMenuButton, IonTitle, IonToolbar,
   ToastController
 } from '@ionic/angular/standalone';
 
@@ -22,7 +22,7 @@ type OwnerLite = { nombre_usuario: string; rating_avg: number | null; rating_cou
     CommonModule, FormsModule,
     IonHeader, IonToolbar, IonTitle, IonContent,
     IonButtons, IonMenuButton, IonBackButton,
-    IonList, IonItem, IonLabel, IonButton, IonImg
+    IonList, IonItem, IonLabel, IonButton
   ],
   templateUrl: './view.page.html',
   styleUrls: ['./view.page.scss'],

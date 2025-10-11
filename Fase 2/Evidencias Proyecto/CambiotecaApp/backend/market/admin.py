@@ -1,7 +1,6 @@
 # market/admin.py
 from django.contrib import admin
-from .models import Libro, ImagenLibro, Intercambio, Mensaje, Favorito, Clasificacion
-
+from .models import Libro, ImagenLibro, Intercambio, Mensaje, Favorito, Clasificacion, Conversacion, ConversacionParticipante, ConversacionMensaje, LibroSolicitudesVistas
 
 # ---- Inlines ----
 class ImagenLibroInline(admin.TabularInline):
@@ -24,17 +23,43 @@ class MensajeInline(admin.TabularInline):
 @admin.register(Libro)
 class LibroAdmin(admin.ModelAdmin):
     list_display = (
-        "id_libro", "titulo", "autor", "genero", "estado",
+        "id_libro", "titulo", "autor", "genero_nombre", "estado",
         "id_usuario", "disponible", "fecha_subida",
     )
-    search_fields = ("titulo", "autor", "isbn", "editorial", "genero")
-    list_filter = ("genero", "estado", "tipo_tapa", "editorial", "anio_publicacion", "disponible")
-    date_hierarchy = "fecha_subida"               # ⬅️ antes: fecha_compra
-    ordering = ("-fecha_subida", "-id_libro")     # ⬅️ antes: -fecha_compra
+    search_fields = (
+        "titulo", "autor", "isbn", "editorial",
+        # si hay FK a Genero:
+        "id_genero__nombre",
+    )
+    list_filter = (
+        "estado", "tipo_tapa", "editorial", "anio_publicacion", "disponible",
+        # si hay FK a Genero:
+        "id_genero",
+    )
+    date_hierarchy = "fecha_subida"
+    ordering = ("-fecha_subida", "-id_libro")
     list_per_page = 50
     raw_id_fields = ("id_usuario",)
     list_select_related = ("id_usuario",)
     inlines = [ImagenLibroInline]
+
+    @admin.display(description="Género")
+    def genero_nombre(self, obj):
+        """
+        Soporta ambos esquemas:
+        - Nuevo: obj.id_genero (FK) -> obj.id_genero.nombre
+        - Viejo: obj.genero (CharField)
+        """
+        # Nuevo esquema (FK)
+        if hasattr(obj, "id_genero") and getattr(obj, "id_genero", None):
+            try:
+                return getattr(obj.id_genero, "nombre", None)
+            except Exception:
+                pass
+        # Esquema anterior (CharField)
+        if hasattr(obj, "genero"):
+            return getattr(obj, "genero", None)
+        return None
 
 
 @admin.register(ImagenLibro)
@@ -107,3 +132,21 @@ class ClasificacionAdmin(admin.ModelAdmin):
     )
     raw_id_fields = ("id_usuario_calificador", "id_usuario_calificado")
     list_select_related = ("id_usuario_calificador", "id_usuario_calificado")
+
+@admin.register(Conversacion)
+class ConversacionAdmin(admin.ModelAdmin):
+    list_display = ("id_conversacion", "id_intercambio", "creado_en", "actualizado_en")
+
+@admin.register(ConversacionParticipante)
+class ConversacionParticipanteAdmin(admin.ModelAdmin):
+    list_display = ("id_conversacion", "id_usuario", "rol", "silenciado", "archivado", "ultimo_visto_id_mensaje", "visto_en")
+    list_filter = ("silenciado", "archivado")
+
+@admin.register(ConversacionMensaje)
+class ConversacionMensajeAdmin(admin.ModelAdmin):
+    list_display = ("id_mensaje", "id_conversacion", "id_usuario_emisor", "enviado_en", "eliminado")
+    list_filter = ("eliminado",)
+
+@admin.register(LibroSolicitudesVistas)
+class LibroSolicitudesVistasAdmin(admin.ModelAdmin):
+    list_display = ("id", "id_usuario", "id_libro", "ultimo_visto_id_intercambio", "visto_por_ultima_vez")

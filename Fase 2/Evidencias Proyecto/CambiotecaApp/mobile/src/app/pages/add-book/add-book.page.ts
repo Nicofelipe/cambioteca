@@ -1,3 +1,4 @@
+// src/app/pages/add-book/add-book.page.ts
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import {
@@ -15,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
 import { BooksService } from '../../core/services/books.service';
+import { CatalogService, Genero } from '../../core/services/catalog.service';
 
 // ===== validator ISBN (acepta 10 o 13 dígitos, ignora guiones/espacios) =====
 function isbnValidator(): ValidatorFn {
@@ -45,8 +47,9 @@ export class AddBookPage {
   coverIndex = 0;
   sending = false;
 
-  // para plantilla (validación año)
   currentYear = new Date().getFullYear();
+
+  generos: Genero[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -55,6 +58,7 @@ export class AddBookPage {
     private router: Router,
     private loadingCtrl: LoadingController,
     private toastCtrl: ToastController,
+    private catalog: CatalogService,
   ) {
     const currentYear = this.currentYear;
 
@@ -67,11 +71,25 @@ export class AddBookPage {
         [Validators.required, Validators.min(1800), Validators.max(currentYear)],
       ],
       editorial: ['', Validators.required],
-      genero: ['', Validators.required],
+
+      // usamos id_genero en el form
+      id_genero: [null, Validators.required],
+
       tipo_tapa: [this.tapas[1], Validators.required],
       estado: [this.estados[2], Validators.required],
       descripcion: ['', [Validators.required, Validators.minLength(10)]],
     });
+  }
+
+  async ngOnInit() {
+    try {
+      this.generos = await this.catalog.generos();
+      if (!this.form.get('id_genero')?.value && this.generos.length) {
+        this.form.get('id_genero')?.setValue(this.generos[0].id_genero);
+      }
+    } catch {
+      this.generos = [];
+    }
   }
 
   // ====== imágenes ======
@@ -96,13 +114,11 @@ export class AddBookPage {
 
   setCover(i: number) { this.coverIndex = i; }
 
-  // normaliza valores numéricos (ion-input suele emitir string)
   toNumber(ctrlName: string) {
     const v = Number(this.form.get(ctrlName)?.value);
     if (!Number.isNaN(v)) this.form.get(ctrlName)?.setValue(v, { emitEvent: false });
   }
 
-  // debug para ver qué controles están inválidos
   formInvalidControls() {
     const bad: string[] = [];
     Object.entries(this.form.controls).forEach(([name, ctrl]) => {
@@ -125,13 +141,41 @@ export class AddBookPage {
     this.sending = true;
 
     try {
-      // 1) crear libro
+      const v = this.form.value as any;
+
+      // nombre del género (por si el backend aún espera "genero")
+      const generoName = this.generos.find(g => g.id_genero === Number(v.id_genero))?.nombre ?? null;
+
+      // 👉 usa ISO 8601 para máxima compatibilidad con serializers
+      const fechaISO = new Date().toISOString();
+
       const payload = {
-        ...this.form.value,
-        id_usuario: me.id,       // dueño
-        disponible: true,        // por defecto disponible
+        titulo: v.titulo,
+        autor: v.autor,
+        isbn: v.isbn,
+        anio_publicacion: Number(v.anio_publicacion),
+        editorial: v.editorial,
+
+        // ambos campos por compatibilidad
+        id_genero: Number(v.id_genero),
+        ...(generoName ? { genero: generoName } : {}),
+
+        tipo_tapa: v.tipo_tapa,
+        estado: v.estado,
+        descripcion: v.descripcion,
+
+        id_usuario: me.id,
+        disponible: true,
+
+        // 👇 evita el “cannot be null”
+        fecha_subida: fechaISO,
       };
+
+      console.log('[ADD-BOOK] payload =>', payload);
+
       const created: any = await firstValueFrom(this.books.create(payload));
+      console.log('[ADD-BOOK] created <=', created);
+
       const libroId = Number(created?.id || created?.id_libro);
 
       // 2) subir imágenes (portada primero)
@@ -152,13 +196,26 @@ export class AddBookPage {
     } catch (e: any) {
       await loading.dismiss();
       this.sending = false;
-      const msg = e?.error?.detail || e?.error?.message || 'Error al publicar';
-      this.toast(msg);
+
+      // muestra el detalle que manda el backend
+      console.error('[ADD-BOOK] error:', e);
+      const detail =
+        e?.error?.detail ??
+        e?.error?.message ??
+        (typeof e?.error === 'string' ? e.error : null);
+
+      // Si el backend devuelve dict por campo, conviértelo a string legible
+      const fieldErrors = e?.error && typeof e.error === 'object'
+        ? Object.entries(e.error).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join(' · ')
+        : null;
+
+      const msg = detail || fieldErrors || 'Error al publicar';
+      this.toast(`No se pudo crear: ${msg}`);
     }
   }
 
   async toast(message: string) {
-    const t = await this.toastCtrl.create({ message, duration: 2000, position: 'bottom' });
+    const t = await this.toastCtrl.create({ message, duration: 2200, position: 'bottom' });
     await t.present();
   }
 

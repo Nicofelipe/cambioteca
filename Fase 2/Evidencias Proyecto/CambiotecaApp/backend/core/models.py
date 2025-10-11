@@ -62,6 +62,7 @@ class Usuario(models.Model):
     telefono = models.CharField(max_length=15)
     direccion = models.CharField(max_length=255)
     numeracion = models.CharField(max_length=10)
+    es_admin = models.BooleanField(default=False)  
 
     # En la tabla el campo es comuna_id, mantenemos ese nombre con db_column
     comuna = models.ForeignKey(

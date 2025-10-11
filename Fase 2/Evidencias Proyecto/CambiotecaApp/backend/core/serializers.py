@@ -18,6 +18,7 @@ class UsuarioLiteSerializer(serializers.ModelSerializer):
         )
 
 
+
 class UsuarioSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario

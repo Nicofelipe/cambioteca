@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from .models import Libro, ImagenLibro
+from .models import Libro, ImagenLibro, Genero
+
+class GeneroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genero
+        fields = ("id_genero", "nombre")
+
 
 class LibroSerializer(serializers.ModelSerializer):
     # Alias del PK para el front
@@ -7,15 +13,19 @@ class LibroSerializer(serializers.ModelSerializer):
     # Dueño a prueba de FK nulo/inválido
     owner_id = serializers.SerializerMethodField()
     owner_nombre = serializers.SerializerMethodField()
+    # Mostrar PK del género y su nombre
+    id_genero = serializers.IntegerField(source='id_genero_id', read_only=True)
+    genero_nombre = serializers.SerializerMethodField()
 
     class Meta:
         model = Libro
         fields = [
             'id', 'id_libro',
             'titulo', 'autor', 'isbn', 'anio_publicacion', 'estado',
-            'editorial', 'genero', 'tipo_tapa', 'descripcion',  # 👈 añadí descripcion
+            'editorial', 'tipo_tapa', 'descripcion',
             'disponible', 'fecha_subida',
             'owner_nombre', 'owner_id',
+            'id_genero', 'genero_nombre',
         ]
 
     def get_owner_id(self, obj):
@@ -39,6 +49,10 @@ class LibroSerializer(serializers.ModelSerializer):
             return getattr(u, 'nombre_usuario', None) if u else None
         except Exception:
             return None
+        
+    def get_genero_nombre(self, obj):
+        g = getattr(obj, 'id_genero', None)
+        return getattr(g, 'nombre', None) if g else None
 
 
 # 👇 la dejamos igual; no rompe mientras no la instancies desde una vista.
@@ -47,7 +61,7 @@ class LibroCreateSerializer(serializers.ModelSerializer):
         model = Libro
         fields = [
             'titulo','isbn','anio_publicacion','autor','estado',
-            'descripcion','editorial','genero','tipo_tapa','id_usuario'
+            'descripcion','editorial','tipo_tapa','id_usuario','id_genero','disponible'
         ]
 
 

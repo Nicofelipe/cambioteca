@@ -11,6 +11,8 @@ export interface MyBookCard {
   descripcion: string;
   editorial: string;
   genero: string;
+  /** 👇 nuevo: viene del backend en /api/books/mine/ */
+  genero_nombre?: string | null;
   tipo_tapa: string;
   disponible: boolean;
   fecha_subida: string;
@@ -40,31 +42,40 @@ export interface RawLibro {
   id_libro: number;
   titulo: string;
   autor: string;
-  estado?: string;            // 👈 añadidos
-  descripcion?: string;       // 👈
-  editorial?: string;         // opcional (no siempre lo necesitas en front)
-  genero?: string;
-  tipo_tapa?: string;         // opcional
+  estado?: string;
+  descripcion?: string;
+  editorial?: string;
+  genero?: string;                 // legacy (cuando venga)
+  genero_nombre?: string | null;   // 👈 NUEVO (del serializer)
+  id_genero?: number | null;       // 👈 NUEVO
+  tipo_tapa?: string;
   owner_nombre?: string;
   owner_id?: number;
-  fecha_subida?: string;      // ISO
+  fecha_subida?: string;
   disponible?: boolean;
+  isbn?: string | null;            // 👈 NUEVO
+  anio_publicacion?: number | null;// 👈 NUEVO
 }
 
 export interface Libro {
   id: number;
   titulo: string;
   autor: string;
-  estado?: string;            // 👈 añadidos
-  descripcion?: string;       // 👈
+  estado?: string;
+  descripcion?: string;
   editorial?: string;
-  genero?: string;
+  genero?: string;                 // legacy
+  genero_nombre?: string | null;   // 👈 NUEVO
+  id_genero?: number | null;       // 👈 NUEVO
   tipo_tapa?: string;
   owner_nombre?: string;
   owner_id?: number;
   fecha_subida?: string;
   disponible?: boolean;
+  isbn?: string | null;            // 👈 NUEVO
+  anio_publicacion?: number | null;// 👈 NUEVO
 }
+
 
 export interface PopularItem {
   titulo: string;
@@ -104,15 +115,19 @@ const mapLibro = (r: RawLibro): Libro => ({
   id: r.id_libro,
   titulo: r.titulo,
   autor: r.autor,
-  estado: r.estado ?? undefined,            // 👈 mapear
-  descripcion: r.descripcion ?? undefined,  // 👈 mapear
+  estado: r.estado ?? undefined,
+  descripcion: r.descripcion ?? undefined,
   editorial: r.editorial ?? undefined,
-  genero: r.genero,
+  genero: r.genero,                     // si llega legacy
+  genero_nombre: r.genero_nombre ?? null,
+  id_genero: r.id_genero ?? null,
   tipo_tapa: r.tipo_tapa ?? undefined,
   owner_nombre: r.owner_nombre,
   owner_id: r.owner_id,
   fecha_subida: r.fecha_subida,
   disponible: r.disponible,
+  isbn: r.isbn ?? null,
+  anio_publicacion: r.anio_publicacion ?? null,
 });
 
 const normalize = (s: string) =>

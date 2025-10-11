@@ -19,8 +19,21 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-from .models import Libro, Intercambio, ImagenLibro, LibroSolicitudesVistas
-from .serializers import LibroSerializer
+from .models import Libro, Intercambio, ImagenLibro, LibroSolicitudesVistas, Conversacion, ConversacionParticipante, ConversacionMensaje, Genero
+from .serializers import LibroSerializer, GeneroSerializer
+from datetime import date
+from django.db import IntegrityError
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+
+
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def catalog_generos(request):
+    qs = Genero.objects.all().order_by("nombre")
+    return Response(GeneroSerializer(qs, many=True).data)
+
 
 # =========================
 # Helpers
@@ -68,7 +81,7 @@ class LibroViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(
                 Q(titulo__icontains=q) |
                 Q(autor__icontains=q) |
-                Q(genero__icontains=q)
+                Q(id_genero__nombre__icontains=q)
             )
         return qs
 
@@ -84,37 +97,43 @@ class LibroViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(detail=False, methods=['get'])
     def populares(self, request):
-        agregados = (
+        qs = (
             Libro.objects
+            .values('titulo')  # agrupamos por título desde el principio
             .annotate(
+                # SOLO anuncios activos (disponible=True) y sin duplicar
+                repeticiones=Count('id_libro', filter=Q(disponible=True), distinct=True),
+
+                # intercambios Completados donde cualquier libro de ese título participó
                 comp_ofrecido=Count(
                     'intercambios_donde_fue_ofrecido',
-                    filter=Q(intercambios_donde_fue_ofrecido__estado_intercambio='Completado')
+                    filter=Q(intercambios_donde_fue_ofrecido__estado_intercambio='Completado'),
+                    distinct=True,
                 ),
                 comp_solicitado=Count(
                     'intercambios_donde_fue_solicitado',
-                    filter=Q(intercambios_donde_fue_solicitado__estado_intercambio='Completado')
+                    filter=Q(intercambios_donde_fue_solicitado__estado_intercambio='Completado'),
+                    distinct=True,
                 ),
             )
-            .values('titulo')
             .annotate(
                 total_intercambios=Coalesce(
                     F('comp_ofrecido') + F('comp_solicitado'),
                     Value(0), output_field=IntegerField()
-                ),
-                repeticiones=Count('titulo'),
+                )
             )
             .order_by('-total_intercambios', '-repeticiones', 'titulo')[:10]
         )
-        result = [
+
+        data = [
             {
                 "titulo": row['titulo'],
                 "total_intercambios": row['total_intercambios'],
                 "repeticiones": row['repeticiones'],
             }
-            for row in agregados
+            for row in qs
         ]
-        return Response(result)
+        return Response(data)
 
 # =========================
 # Crear libro
@@ -125,11 +144,19 @@ def create_book(request):
     data = request.data
     required = [
         "titulo", "isbn", "anio_publicacion", "autor", "estado",
-        "descripcion", "editorial", "genero", "tipo_tapa", "id_usuario"
+        "descripcion", "editorial", "id_genero", "tipo_tapa", "id_usuario"
     ]
     missing = [k for k in required if not data.get(k)]
     if missing:
         return Response({"detail": f"Faltan: {', '.join(missing)}"}, status=400)
+
+    # --- NUEVO: resolver fecha_subida ---
+    raw = (data.get("fecha_subida") or "").strip()
+    dt = parse_datetime(raw) if raw else None
+    if dt and timezone.is_naive(dt):
+        dt = timezone.make_aware(dt, timezone.get_current_timezone())
+    if not dt:
+        dt = timezone.now()
 
     try:
         libro = Libro.objects.create(
@@ -140,10 +167,11 @@ def create_book(request):
             estado=data["estado"],
             descripcion=data["descripcion"],
             editorial=data["editorial"],
-            genero=data["genero"],
             tipo_tapa=data["tipo_tapa"],
             id_usuario_id=int(data["id_usuario"]),
+            id_genero_id=int(data["id_genero"]),
             disponible=bool(data.get("disponible", True)),
+            fecha_subida=dt,            # 👈 imprescindible
         )
         return Response({"id": libro.id_libro}, status=201)
     except Exception as e:
@@ -352,7 +380,7 @@ def my_books(request):
             "estado": b.estado,
             "descripcion": b.descripcion,
             "editorial": b.editorial,
-            "genero": b.genero,
+            "genero_nombre": getattr(getattr(b, "id_genero", None), "nombre", None),
             "tipo_tapa": b.tipo_tapa,
             "disponible": bool(b.disponible),
             "fecha_subida": b.fecha_subida,
@@ -476,7 +504,7 @@ def my_books_with_history(request):
             "estado": b.estado,
             "descripcion": b.descripcion,
             "editorial": b.editorial,
-            "genero": b.genero,
+            "genero_nombre": getattr(getattr(b, "id_genero", None), "nombre", None),
             "tipo_tapa": b.tipo_tapa,
             "disponible": bool(b.disponible),
             "fecha_subida": b.fecha_subida,
@@ -522,7 +550,7 @@ def update_book(request, libro_id: int):
 
     allowed = {
         "titulo", "autor", "isbn", "anio_publicacion", "estado",
-        "descripcion", "editorial", "genero", "tipo_tapa", "disponible"
+        "descripcion", "editorial", "tipo_tapa", "disponible", "id_genero"
     }
     changed = []
     data = request.data
@@ -531,12 +559,17 @@ def update_book(request, libro_id: int):
         if field in data:
             val = data.get(field)
             if field == "anio_publicacion" and val not in (None, ""):
+                val = int(val)
+                setattr(libro, field, val)
+            elif field == "id_genero" and val not in (None, ""):
                 try:
-                    val = int(val)
+                    libro.id_genero_id = int(val)
+                    changed.append("id_genero")
                 except Exception:
-                    return Response({"detail": "anio_publicacion inválido."}, status=400)
-            setattr(libro, field, val)
-            changed.append(field)
+                    return Response({"detail": "id_genero inválido."}, status=400)
+            else:
+                setattr(libro, field, val)
+                changed.append(field)
 
     if changed:
         libro.save(update_fields=changed)
@@ -550,8 +583,9 @@ def update_book(request, libro_id: int):
         "estado": libro.estado,
         "descripcion": libro.descripcion,
         "editorial": libro.editorial,
-        "genero": libro.genero,
         "tipo_tapa": libro.tipo_tapa,
+        "id_genero": libro.id_genero_id,
+        "genero_nombre": getattr(getattr(libro, "id_genero", None), "nombre", None),
         "disponible": libro.disponible,
         "fecha_subida": libro.fecha_subida,
     }, status=status.HTTP_200_OK)
@@ -591,8 +625,6 @@ def delete_book(request, libro_id: int):
 @permission_classes([AllowAny])  # cambia a IsAuthenticated en prod
 def crear_intercambio(request):
     """
-    Crea una solicitud de intercambio (estado = Pendiente).
-
     Body JSON:
     {
       "id_usuario_solicitante": 1,
@@ -600,34 +632,91 @@ def crear_intercambio(request):
       "id_usuario_ofreciente": 2,
       "id_libro_solicitado": 104,
       "lugar_intercambio": "Metro Baquedano",
-      "fecha_intercambio": "2025-09-30"  # opcional (YYYY-MM-DD)
+      "fecha_intercambio": "YYYY-MM-DD"   # opcional
     }
     """
     data = request.data
+
     required = [
         "id_usuario_solicitante", "id_libro_ofrecido",
         "id_usuario_ofreciente",  "id_libro_solicitado",
         "lugar_intercambio"
     ]
-    miss = [k for k in required if not data.get(k)]
+    miss = [k for k in required if str(data.get(k) or "").strip() == ""]
     if miss:
         return Response({"detail": f"Faltan: {', '.join(miss)}"}, status=400)
 
+    # Parseo IDs
+    try:
+        uid_sol = int(data["id_usuario_solicitante"])
+        uid_ofr = int(data["id_usuario_ofreciente"])
+        libro_ofr_id = int(data["id_libro_ofrecido"])
+        libro_sol_id = int(data["id_libro_solicitado"])
+    except (TypeError, ValueError):
+        return Response({"detail": "IDs inválidos."}, status=400)
+
+    if uid_sol == uid_ofr:
+        return Response({"detail": "No puedes intercambiar contigo mismo."}, status=400)
+    if libro_ofr_id == libro_sol_id:
+        return Response({"detail": "Los libros ofrecido y solicitado no pueden ser el mismo."}, status=400)
+
+    # Cargar libros y validar pertenencia/disponibilidad
+    lo = Libro.objects.filter(pk=libro_ofr_id).first()
+    ls = Libro.objects.filter(pk=libro_sol_id).first()
+    if not lo or not ls:
+        return Response({"detail": "Libro no encontrado."}, status=404)
+
+    if lo.id_usuario_id != uid_sol:
+        return Response({"detail": "El libro ofrecido no te pertenece."}, status=400)
+    if ls.id_usuario_id != uid_ofr:
+        return Response({"detail": "El libro solicitado no pertenece al usuario destino."}, status=400)
+
+    if not lo.disponible:
+        return Response({"detail": "Tu libro ofrecido no está disponible."}, status=400)
+    if not ls.disponible:
+        return Response({"detail": "El libro solicitado ya no está disponible."}, status=400)
+
+    # Evitar duplicados 'Pendiente' entre las mismas 4 entidades
+    dup = Intercambio.objects.filter(
+        id_usuario_solicitante_id=uid_sol,
+        id_usuario_ofreciente_id=uid_ofr,
+        id_libro_ofrecido_id=libro_ofr_id,
+        id_libro_solicitado_id=libro_sol_id,
+        estado_intercambio="Pendiente",
+    ).exists()
+    if dup:
+        return Response({"detail": "Ya existe una solicitud pendiente con estos mismos libros."}, status=400)
+
+    # Fecha
+    fecha = None
+    fecha_raw = (data.get("fecha_intercambio") or "").strip()
+    if fecha_raw:
+        try:
+            fecha = date.fromisoformat(fecha_raw)  # YYYY-MM-DD
+        except Exception:
+            return Response({"detail": "fecha_intercambio inválida. Usa YYYY-MM-DD."}, status=400)
+    # Si tu columna NO acepta NULL, descomenta:
+    # else:
+    #     fecha = timezone.now().date()
+
     try:
         obj = Intercambio.objects.create(
-            id_usuario_solicitante_id = int(data["id_usuario_solicitante"]),
-            id_usuario_ofreciente_id  = int(data["id_usuario_ofreciente"]),
-            id_libro_ofrecido_id      = int(data["id_libro_ofrecido"]),
-            id_libro_solicitado_id    = int(data["id_libro_solicitado"]),
-            lugar_intercambio         = data["lugar_intercambio"],
-            fecha_intercambio         = data.get("fecha_intercambio") or None,
-            estado_intercambio        = "Pendiente",
+            id_usuario_solicitante_id=uid_sol,
+            id_usuario_ofreciente_id=uid_ofr,
+            id_libro_ofrecido_id=libro_ofr_id,
+            id_libro_solicitado_id=libro_sol_id,
+            lugar_intercambio=str(data["lugar_intercambio"]).strip()[:255],
+            fecha_intercambio=fecha,
+            estado_intercambio="Pendiente",
         )
         return Response({"id_intercambio": obj.id_intercambio}, status=201)
-    except Exception as e:
-        # Tus triggers en MySQL devuelven mensajes claros si algo no cuadra
-        return Response({"detail": str(e)}, status=400)
 
+    except IntegrityError as e:
+        # FK o restricciones de BD
+        return Response({"detail": "Restricción de integridad: revisa que los IDs existan y sean válidos."}, status=400)
+    except Exception as e:
+        # Si tienes triggers que devuelven mensajes personalizados, exponlos:
+        return Response({"detail": str(e)}, status=400)
 
 @api_view(["PATCH"])
 @permission_classes([AllowAny])  # cambia a IsAuthenticated en prod
@@ -713,13 +802,13 @@ def books_by_title(request):
                          .values("url_imagen")[:1])
 
     # Reputación del dueño (promedio y cantidad)
-    from .models import Clasificacion
-    avg_sq = (Clasificacion.objects
+    from .models import Calificacion
+    avg_sq = (Calificacion.objects
               .filter(id_usuario_calificado=OuterRef("id_usuario_id"))
               .values("id_usuario_calificado")
               .annotate(a=Avg("puntuacion"))
               .values("a")[:1])
-    cnt_sq = (Clasificacion.objects
+    cnt_sq = (Calificacion.objects
               .filter(id_usuario_calificado=OuterRef("id_usuario_id"))
               .values("id_usuario_calificado")
               .annotate(c=Count("id_clasificacion"))
@@ -744,6 +833,7 @@ def books_by_title(request):
             "fecha_subida": b.fecha_subida,
             "disponible": bool(b.disponible),
             "first_image": media_abs(request, rel) if rel else None,
+            "genero_nombre": getattr(getattr(b, "id_genero", None), "nombre", None),
             "owner": {
                 "id": getattr(b.id_usuario, "id_usuario", None),
                 "nombre_usuario": getattr(b.id_usuario, "nombre_usuario", None),
@@ -752,3 +842,168 @@ def books_by_title(request):
             }
         })
     return Response(data)
+
+
+def _conv_payload(conv_id: int, me_id: int):
+    last = (ConversacionMensaje.objects
+            .filter(id_conversacion_id=conv_id)
+            .only('cuerpo', 'enviado_en', 'id_mensaje')
+            .order_by('-id_mensaje')
+            .first())
+
+    # “El otro” participante
+    par = (ConversacionParticipante.objects
+           .filter(id_conversacion_id=conv_id)
+           .exclude(id_usuario_id=me_id)
+           .select_related('id_usuario')
+           .first())
+    other = getattr(par, 'id_usuario', None)
+
+    return {
+        "id_conversacion": conv_id,
+        "ultimo_mensaje": getattr(last, 'cuerpo', None),
+        "ultimo_enviado_en": getattr(last, 'enviado_en', None),
+        "ultimo_id_mensaje": getattr(last, 'id_mensaje', None),
+        "otro_usuario": {
+            "id_usuario": getattr(other, 'id_usuario', None),
+            "nombre_usuario": getattr(other, 'nombre_usuario', None),
+            "nombres": getattr(other, 'nombres', None),
+            "imagen_perfil": getattr(other, 'imagen_perfil', None),
+        },
+        # opcional: si luego quieres unread_count real, puedes calcularlo con conversacion_participante. 
+    }
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def lista_conversaciones(request, user_id: int):
+    """
+    Devuelve la lista de conversaciones del usuario con:
+      - id_conversacion
+      - ultimo_enviado_en
+      - ultimo_mensaje
+      - otro_usuario{ id_usuario, nombre_usuario, nombres, imagen_perfil }
+      - unread_count
+    SIN reventar por valores nulos.
+    """
+    sql = """
+    SELECT
+    c.id_conversacion,
+    c.actualizado_en                         AS ultimo_enviado_en,
+    cm.cuerpo                                AS ultimo_mensaje,
+    other_u.id_usuario                       AS otro_usuario_id,
+    other_u.nombre_usuario                   AS nombre_usuario,
+    other_u.nombres                          AS nombres,
+    other_u.imagen_perfil                    AS imagen_perfil,
+    c.titulo                                 AS titulo_chat,
+    i.id_intercambio                         AS id_intercambio,
+    ls.titulo                                AS libro_solicitado_titulo,
+    GREATEST(c.ultimo_id_mensaje - me.ultimo_visto_id_mensaje, 0) AS unread_count
+    FROM conversacion c
+    JOIN conversacion_participante me
+    ON me.id_conversacion = c.id_conversacion
+    AND me.id_usuario      = %s
+    AND me.archivado       = 0
+    LEFT JOIN conversacion_participante other_p
+    ON other_p.id_conversacion = c.id_conversacion
+    AND other_p.id_usuario     <> %s
+    LEFT JOIN usuario other_u
+    ON other_u.id_usuario = other_p.id_usuario
+    LEFT JOIN conversacion_mensaje cm
+    ON cm.id_mensaje = c.ultimo_id_mensaje
+    LEFT JOIN intercambio i
+    ON i.id_intercambio = c.id_intercambio
+    LEFT JOIN libro ls
+    ON ls.id_libro = i.id_libro_solicitado
+    ORDER BY c.actualizado_en DESC
+    """
+
+    with connection.cursor() as cur:
+        cur.execute(sql, [user_id, user_id])
+        cols = [c[0] for c in cur.description]
+        raw = [dict(zip(cols, r)) for r in cur.fetchall()]
+
+    # Armar el payload exactamente como espera tu ChatService
+    data = []
+    for r in raw:
+        nombre = r["nombre_usuario"] or r["nombres"] or None
+        libro  = r["libro_solicitado_titulo"] or None
+        avatar_rel = r["imagen_perfil"] or "avatars/avatardefecto.jpg"  # fallback
+
+        display_title = f"{nombre} · {libro}" if (nombre and libro) else (nombre or r["titulo_chat"] or "Conversación")
+
+        data.append({
+            "id_conversacion": r["id_conversacion"],
+            "ultimo_enviado_en": r["ultimo_enviado_en"],
+            "ultimo_mensaje": r["ultimo_mensaje"],
+            "otro_usuario": {
+                "id_usuario": r["otro_usuario_id"],
+                "nombre_usuario": r["nombre_usuario"],
+                "nombres": r["nombres"],
+                "imagen_perfil": media_abs(request, avatar_rel),  # URL ABSOLUTA
+            },
+            "titulo_chat": r["titulo_chat"],
+            "requested_book_title": libro,     # 👈 SIEMPRE el solicitado por el solicitante
+            "display_title": display_title,    # 👈 “Nombre · Libro”
+            "unread_count": r["unread_count"] or 0,
+        })
+    return Response(data)
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def mensajes_de_conversacion(request, conversacion_id: int):
+    # Acepta ambos nombres de query param para compatibilidad con tu front
+    after = request.query_params.get('after') or request.query_params.get('after_id')
+    qs = ConversacionMensaje.objects.filter(id_conversacion_id=conversacion_id)
+    if after:
+        qs = qs.filter(id_mensaje__gt=after)
+    qs = qs.order_by('id_mensaje')
+
+    return Response([
+        {
+            "id_mensaje": m.id_mensaje,
+            "emisor_id": m.id_usuario_emisor_id,
+            "cuerpo": m.cuerpo,
+            "enviado_en": m.enviado_en,
+            "eliminado": m.eliminado
+        } for m in qs
+    ])
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def enviar_mensaje(request, conversacion_id: int):
+    emisor_id = int(request.data.get('id_usuario_emisor'))
+    cuerpo = (request.data.get('cuerpo') or '').strip()
+    if not cuerpo:
+        return Response({"detail": "Mensaje vacío."}, status=400)
+
+    conv = Conversacion.objects.filter(pk=conversacion_id).first()
+    if not conv:
+        return Response({"detail": "Conversación no existe."}, status=404)
+
+    m = ConversacionMensaje.objects.create(
+        id_conversacion=conv,
+        id_usuario_emisor_id=emisor_id,
+        cuerpo=cuerpo,
+        enviado_en=timezone.now()
+    )
+    # actualizar timestamp de la conversación
+    Conversacion.objects.filter(pk=conversacion_id).update(actualizado_en=timezone.now())
+    return Response({"id_mensaje": m.id_mensaje}, status=201)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def marcar_visto(request, conversacion_id: int):
+    user_id = int(request.data.get('id_usuario'))
+    last_id = ConversacionMensaje.objects.filter(
+        id_conversacion_id=conversacion_id
+    ).aggregate(max_id=Max('id_mensaje'))['max_id'] or 0
+
+    ConversacionParticipante.objects.filter(
+        id_conversacion_id=conversacion_id, id_usuario_id=user_id
+    ).update(ultimo_visto_id_mensaje=last_id, visto_en=timezone.now())
+
+    return Response({"ultimo_visto_id_mensaje": last_id})

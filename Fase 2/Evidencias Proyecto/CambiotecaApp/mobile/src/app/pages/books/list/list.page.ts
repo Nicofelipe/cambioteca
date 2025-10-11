@@ -3,7 +3,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, CUSTOM_ELEMENTS_SCHEMA, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   IonButtons, IonContent, IonHeader, IonItem, IonLabel, IonList,
   IonMenuButton, IonSearchbar, IonTitle, IonToolbar
@@ -18,7 +18,7 @@ import { BooksService, Libro } from '../../../core/services/books.service';
     IonHeader, IonToolbar, IonTitle, IonContent,
     IonButtons, IonMenuButton,
     IonSearchbar, IonList, IonItem, IonLabel,
-    RouterLink, RouterLinkActive
+    RouterLink
   ],
   templateUrl: './list.page.html',
   styleUrls: ['./list.page.scss'],

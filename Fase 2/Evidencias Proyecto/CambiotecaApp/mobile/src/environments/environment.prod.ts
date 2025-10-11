@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tuservidor.com'  // dominio real en despliegue
+  apiUrl: 'http://127.0.0.1:8000',
+  mediaBase: '', // 👈 con barra final
 };

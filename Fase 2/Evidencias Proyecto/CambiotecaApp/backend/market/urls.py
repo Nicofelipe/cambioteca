@@ -6,8 +6,10 @@ from .views import (
     upload_image, list_images, update_image, delete_image,
     marcar_solicitudes_vistas, delete_book,
     crear_intercambio, responder_intercambio, completar_intercambio,
-    solicitudes_entrantes, books_by_title
+    solicitudes_entrantes, books_by_title, lista_conversaciones,
+    mensajes_de_conversacion, enviar_mensaje, marcar_visto, catalog_generos
 )
+
 
 router = DefaultRouter()
 router.register(r'libros', LibroViewSet, basename='libros')
@@ -25,12 +27,19 @@ urlpatterns = [
     path('images/<int:imagen_id>/delete/', delete_image, name='delete_image'),
     path('libros/<int:libro_id>/solicitudes/vistas/', marcar_solicitudes_vistas, name='marcar_solicitudes_vistas'),
     path('libros/<int:libro_id>/delete/', delete_book, name='delete_book'),
+    path('catalog/generos/', catalog_generos, name='catalog-generos'),
     
     # Intercambios (solicitudes)
     path('intercambios/create/', crear_intercambio),
     path('intercambios/<int:intercambio_id>/responder/', responder_intercambio),
     path('intercambios/<int:intercambio_id>/completar/', completar_intercambio),
     path('intercambios/entrantes/', solicitudes_entrantes),
+
+     # Chats
+    path('chat/<int:user_id>/conversaciones/', lista_conversaciones),        # 👈 FALTABA
+    path('chat/conversacion/<int:conversacion_id>/mensajes/', mensajes_de_conversacion),
+    path('chat/conversacion/<int:conversacion_id>/enviar/',   enviar_mensaje),
+    path('chat/conversacion/<int:conversacion_id>/visto/',    marcar_visto), # 👈 recomendable agregar
 
 
     path('libros/by-title/', books_by_title),

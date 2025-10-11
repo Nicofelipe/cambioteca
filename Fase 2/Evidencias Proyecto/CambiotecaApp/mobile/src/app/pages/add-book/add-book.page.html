@@ -29,7 +29,7 @@
 
       <ion-item>
         <ion-label position="stacked">ISBN *</ion-label>
-        <ion-input formControlName="isbn" placeholder="978..." ></ion-input>
+        <ion-input formControlName="isbn" placeholder="978..."></ion-input>
       </ion-item>
       <ion-note color="danger" *ngIf="form.get('isbn')?.touched && form.get('isbn')?.errors?.['isbnLength']">
         El ISBN debe tener 10 o 13 dígitos (se ignoran guiones/espacios).
@@ -40,16 +40,15 @@
 
       <ion-item>
         <ion-label position="stacked">Año publicación *</ion-label>
-        <ion-input
-          type="number"
-          formControlName="anio_publicacion"
-          (ionChange)="toNumber('anio_publicacion')">
+        <ion-input type="number" formControlName="anio_publicacion" (ionChange)="toNumber('anio_publicacion')">
         </ion-input>
       </ion-item>
-      <ion-note color="danger" *ngIf="form.get('anio_publicacion')?.touched && form.get('anio_publicacion')?.errors?.['min']">
+      <ion-note color="danger"
+        *ngIf="form.get('anio_publicacion')?.touched && form.get('anio_publicacion')?.errors?.['min']">
         El año no puede ser menor que 1800.
       </ion-note>
-      <ion-note color="danger" *ngIf="form.get('anio_publicacion')?.touched && form.get('anio_publicacion')?.errors?.['max']">
+      <ion-note color="danger"
+        *ngIf="form.get('anio_publicacion')?.touched && form.get('anio_publicacion')?.errors?.['max']">
         El año no puede ser mayor que {{ currentYear }}.
       </ion-note>
 
@@ -61,11 +60,16 @@
         Editorial es obligatoria.
       </ion-note>
 
+      <!-- Género por id -->
       <ion-item>
         <ion-label position="stacked">Género *</ion-label>
-        <ion-input formControlName="genero" placeholder="Fantasía, Romance, ..."></ion-input>
+        <ion-select formControlName="id_genero" interface="popover" placeholder="Selecciona un género">
+          <ion-select-option *ngFor="let g of generos" [value]="g.id_genero">
+            {{ g.nombre }}
+          </ion-select-option>
+        </ion-select>
       </ion-item>
-      <ion-note color="danger" *ngIf="form.get('genero')?.touched && form.get('genero')?.invalid">
+      <ion-note color="danger" *ngIf="form.get('id_genero')?.touched && form.get('id_genero')?.invalid">
         Género es obligatorio.
       </ion-note>
 
@@ -85,10 +89,7 @@
 
       <ion-item>
         <ion-label position="stacked">Descripción *</ion-label>
-        <ion-textarea
-          formControlName="descripcion"
-          rows="5"
-          autoGrow="true"
+        <ion-textarea formControlName="descripcion" rows="5" autoGrow="true"
           placeholder="Breve descripción del estado, edición, notas…">
         </ion-textarea>
       </ion-item>
@@ -118,14 +119,13 @@
         </ion-button>
       </div>
 
-      <!-- DEBUG (puedes quitarlo cuando todo funcione) -->
+      <!-- DEBUG -->
       <div style="font-size:12px;color:#666;margin:8px 0">
         Form status: {{ form.status }} |
-        Invalidos:
+        Inválidos:
         <ng-container *ngFor="let c of formInvalidControls()">{{ c }} </ng-container>
       </div>
 
-      <!-- separador para no tapar con la tabbar/footer -->
       <div class="bottom-spacer"></div>
     </ion-list>
   </form>

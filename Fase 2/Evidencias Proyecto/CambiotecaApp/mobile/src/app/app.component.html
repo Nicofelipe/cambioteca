@@ -48,7 +48,16 @@
             <ion-label>{{ it.name }}</ion-label>
           </ion-item>
         </ion-menu-toggle>
+
+        <ion-menu-toggle auto-hide="true" *ngIf="user">
+        <ion-item routerLink="/chats" routerLinkActive="activated" detail="true">
+          <ion-icon slot="start" name="chatbubbles-outline"></ion-icon>
+          <ion-label>Chats</ion-label>
+        </ion-item>
+      </ion-menu-toggle>
       </ion-list>
+
+      
 
 
       <!-- Cerrar sesión al final, solo logueado -->
@@ -74,10 +83,6 @@
 
     <!-- ===== Barra inferior móvil (solo logueado) ===== -->
     <nav class="mobile-tabbar" *ngIf="user">
-      <button class="tab" routerLink="/home" aria-label="Inicio">
-        <ion-icon name="home-outline"></ion-icon>
-        <span>Inicio</span>
-      </button>
 
       <button class="tab" routerLink="/books" aria-label="Libros">
         <ion-icon name="book-outline"></ion-icon>
@@ -97,6 +102,11 @@
       <button class="tab" routerLink="/profile" aria-label="Perfil">
         <ion-icon name="person-circle-outline"></ion-icon>
         <span>Perfil</span>
+      </button>
+
+      <button class="tab" routerLink="/chats" aria-label="Chats">
+        <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+        <span>Chats</span>
       </button>
     </nav>
 

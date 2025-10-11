@@ -38,7 +38,7 @@
             <h2 class="ttl">{{ b.titulo }}</h2>
             <p class="muted">de {{ b.autor }}</p>
             <p class="muted">Editorial: {{ b.editorial }} · {{ b.tipo_tapa }}</p>
-            <p class="muted">Género: {{ b.genero }}</p>
+            <p class="muted">Género: {{ b.genero || b.genero_nombre || '—' }}</p>
             <p class="desc">{{ b.descripcion }}</p>
 
             <div class="meta">
@@ -97,10 +97,7 @@
           <ion-icon slot="start" name="trash-outline"></ion-icon>
           Eliminar publicación
         </ion-button>
-
       </div>
-
-      
 
       <!-- PRE-SUBIDA: previews + opción de portada + confirmar -->
       <ion-card *ngIf="pendingPreviews().length">
@@ -111,7 +108,6 @@
 
         <ion-card-content>
           <ion-segment [value]="portadaMode()" (ionChange)="onPortadaModeChange($event)">
-
             <ion-segment-button value="keep">
               <ion-label>Mantener portada actual</ion-label>
             </ion-segment-button>
@@ -274,9 +270,16 @@
           <ion-item>
             <ion-input label="Editorial" labelPlacement="floating" [(ngModel)]="edit.editorial"></ion-input>
           </ion-item>
+
+          <!-- Género por ID (select) -->
           <ion-item>
-            <ion-input label="Género" labelPlacement="floating" [(ngModel)]="edit.genero"></ion-input>
+            <ion-select label="Género" labelPlacement="floating" [(ngModel)]="edit.id_genero">
+              <ion-select-option *ngFor="let g of generos" [value]="g.id_genero">
+                {{ g.nombre }}
+              </ion-select-option>
+            </ion-select>
           </ion-item>
+
           <ion-item>
             <ion-input label="Tipo de tapa" labelPlacement="floating" [(ngModel)]="edit.tipo_tapa"></ion-input>
           </ion-item>

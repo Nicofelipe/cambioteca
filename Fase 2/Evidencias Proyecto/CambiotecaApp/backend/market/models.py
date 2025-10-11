@@ -2,6 +2,17 @@
 
 from django.db import models
 
+class Genero(models.Model):
+    id_genero = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = 'genero'
+        managed = False  # si la tabla ya existe en tu BD; pon True si la migrará Django
+
+    def __str__(self):
+        return self.nombre
+
 # Referencias entre apps por string:
 # 'core.Usuario', 'market.Libro'
 
@@ -9,22 +20,22 @@ class Libro(models.Model):
     id_libro = models.AutoField(primary_key=True)
     titulo = models.CharField(max_length=255)
     isbn = models.CharField(max_length=13)
-    anio_publicacion = models.PositiveSmallIntegerField()
+    anio_publicacion = models.PositiveSmallIntegerField()  # YEAR en MySQL -> int corto
     autor = models.CharField(max_length=255)
-    estado = models.CharField(max_length=20)
+    estado = models.CharField(max_length=20)               # Enum en BD; aquí como CharField
     descripcion = models.TextField()
     editorial = models.CharField(max_length=255)
-    genero = models.CharField(max_length=100)
-    tipo_tapa = models.CharField(max_length=20)
-    disponible = models.BooleanField(default=True)   # mapea a TINYINT(1)
-    fecha_subida = models.DateTimeField(auto_now_add=True, db_column='fecha_subida')
+    tipo_tapa = models.CharField(max_length=20)            # Enum en BD; aquí CharField
+    disponible = models.BooleanField(default=True)
+    fecha_subida = models.DateTimeField(db_column='fecha_subida', auto_now_add=False)
 
-    # Acceso desde Usuario: usuario.libros.all()
     id_usuario = models.ForeignKey(
-        'core.Usuario',
-        db_column='id_usuario',
-        on_delete=models.DO_NOTHING,
-        related_name='libros'
+        'core.Usuario', db_column='id_usuario',
+        on_delete=models.DO_NOTHING, related_name='libros'
+    )
+    id_genero = models.ForeignKey(
+        'market.Genero', db_column='id_genero',
+        on_delete=models.RESTRICT, related_name='libros'
     )
 
     class Meta:
@@ -35,39 +46,32 @@ class Libro(models.Model):
         return f"{self.titulo} — {self.autor}"
 
 
-class Clasificacion(models.Model):
+class Calificacion(models.Model):
     id_clasificacion = models.AutoField(primary_key=True)
     puntuacion = models.IntegerField()
     comentario = models.TextField()
 
-    # Accesos:
-    # - usuario.clasificaciones_hechas.all()
-    # - usuario.clasificaciones_recibidas.all()
     id_usuario_calificador = models.ForeignKey(
-        'core.Usuario',
-        db_column='id_usuario_calificador',
-        on_delete=models.DO_NOTHING,
-        related_name='clasificaciones_hechas'
+        'core.Usuario', db_column='id_usuario_calificador',
+        on_delete=models.DO_NOTHING, related_name='clasificaciones_hechas'
     )
     id_usuario_calificado = models.ForeignKey(
-        'core.Usuario',
-        db_column='id_usuario_calificado',
-        on_delete=models.DO_NOTHING,
-        related_name='clasificaciones_recibidas'
+        'core.Usuario', db_column='id_usuario_calificado',
+        on_delete=models.DO_NOTHING, related_name='clasificaciones_recibidas'
     )
-
     id_intercambio = models.ForeignKey(
         'market.Intercambio', db_column='id_intercambio',
-        on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='calificaciones'
+        on_delete=models.SET_NULL, null=True, blank=True, related_name='calificaciones'
     )
 
     class Meta:
-        db_table = 'clasificacion'
+        db_table = 'calificacion'
         managed = False
 
     def __str__(self):
-        return f"Clasificación {self.puntuacion} a {self.id_usuario_calificado_id}"
+        return f"Calificación {self.puntuacion} a {self.id_usuario_calificado_id}"
+
+Clasificacion = Calificacion  # alias compat
 
 
 class Favorito(models.Model):
@@ -180,36 +184,23 @@ class Mensaje(models.Model):
     id_mensaje = models.AutoField(primary_key=True)
     mensaje = models.TextField()
     fecha_envio = models.DateTimeField()
-
-    # Accesos:
-    # - intercambio.mensajes.all()
-    # - usuario.mensajes_enviados.all()
-    # - usuario.mensajes_recibidos.all()
     id_intercambio = models.ForeignKey(
-        'market.Intercambio',
-        db_column='id_intercambio',
-        on_delete=models.DO_NOTHING,
-        related_name='mensajes'
+        'market.Intercambio', db_column='id_intercambio',
+        on_delete=models.DO_NOTHING, related_name='mensajes'
     )
     id_usuario_emisor = models.ForeignKey(
-        'core.Usuario',
-        db_column='id_usuario_emisor',
-        on_delete=models.DO_NOTHING,
-        related_name='mensajes_enviados'
+        'core.Usuario', db_column='id_usuario_emisor',
+        on_delete=models.DO_NOTHING, related_name='mensajes_enviados'
     )
     id_usuario_receptor = models.ForeignKey(
-        'core.Usuario',
-        db_column='id_usuario_receptor',
-        on_delete=models.DO_NOTHING,
-        related_name='mensajes_recibidos'
+        'core.Usuario', db_column='id_usuario_receptor',
+        on_delete=models.DO_NOTHING, related_name='mensajes_recibidos'
     )
 
     class Meta:
         db_table = 'mensaje'
         managed = False
 
-    def __str__(self):
-        return f"Msg #{self.id_mensaje} — Intercambio {self.id_intercambio_id}"
 
 
 class LibroSolicitudesVistas(models.Model):
@@ -229,3 +220,58 @@ class LibroSolicitudesVistas(models.Model):
         db_table = 'libro_solicitudes_vistas'
         managed = False
         unique_together = (('id_usuario', 'id_libro'),)
+
+
+class Conversacion(models.Model):
+    id_conversacion = models.AutoField(primary_key=True)
+    id_intercambio = models.ForeignKey(
+        'market.Intercambio', db_column='id_intercambio',
+        on_delete=models.DO_NOTHING, related_name='conversaciones'
+    )
+    creado_en = models.DateTimeField(db_column='creado_en', null=True, blank=True)
+    actualizado_en = models.DateTimeField(db_column='actualizado_en', auto_now=True)
+
+    class Meta:
+        db_table = 'conversacion'
+        managed = False
+
+
+class ConversacionParticipante(models.Model):
+    id_conversacion = models.ForeignKey(
+        'market.Conversacion', db_column='id_conversacion',
+        on_delete=models.CASCADE, related_name='participantes'
+    )
+    id_usuario = models.ForeignKey(
+        'core.Usuario', db_column='id_usuario',
+        on_delete=models.CASCADE, related_name='conversaciones'
+    )
+    rol = models.CharField(max_length=20, null=True, blank=True)
+    silenciado = models.BooleanField(default=False)
+    archivado = models.BooleanField(default=False)
+    ultimo_visto_id_mensaje = models.IntegerField(null=True, blank=True)
+    visto_en = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'conversacion_participante'
+        managed = False
+        unique_together = (('id_conversacion','id_usuario'),)
+
+
+class ConversacionMensaje(models.Model):
+    id_mensaje = models.AutoField(primary_key=True, db_column='id_mensaje')
+    id_conversacion = models.ForeignKey(
+        'market.Conversacion', db_column='id_conversacion',
+        on_delete=models.CASCADE, related_name='mensajes'
+    )
+    id_usuario_emisor = models.ForeignKey(
+        'core.Usuario', db_column='id_usuario_emisor',
+        on_delete=models.DO_NOTHING, related_name='mensajes_chat_enviados'
+    )
+    cuerpo = models.TextField(db_column='cuerpo')
+    enviado_en = models.DateTimeField(db_column='enviado_en')
+    editado_en = models.DateTimeField(db_column='editado_en', null=True, blank=True)
+    eliminado = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = 'conversacion_mensaje'
+        managed = False
