@@ -1,0 +1,178 @@
+/* --- HERO SECTION (BIENVENIDA Y BUSCADOR) --- */
+.hero-section {
+  background-color: #f4f5f8;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.hero-logo {
+  max-width: 150px;
+  margin-bottom: 20px;
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.hero-section .subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  max-width: 600px;
+  margin: 10px auto 30px;
+}
+
+.hero-search form {
+  display: flex;
+  max-width: 700px;
+  margin: 0 auto;
+  border-radius: 50px; /* Bordes redondeados */
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.hero-search input {
+  flex-grow: 1;
+  border: none;
+  padding: 18px 25px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.hero-search button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.hero-search button:hover {
+  background-color: #0056b3;
+}
+
+/* --- ESTILOS GENERALES Y MENSAJES --- */
+.message-container {
+  text-align: center;
+  padding: 50px 20px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.catalog-section {
+  padding: 40px 20px;
+}
+
+.catalog-section h2 {
+  text-align: center;
+  font-size: 2.2rem;
+  margin-bottom: 30px;
+}
+
+/* --- ESTILOS DE TARJETAS (CARDS) --- */
+.book-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.book-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+}
+
+.book-image-placeholder {
+  height: 200px;
+  background-color: #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #adb5bd;
+  overflow: hidden;
+}
+
+.book-image-placeholder img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.book-card-content {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.book-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.book-card .author {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0 0 10px 0;
+  flex-grow: 1; /* Empuja el resto hacia abajo */
+}
+
+.book-card .date {
+  font-size: 0.8rem;
+  color: #999;
+  margin-top: 10px;
+}
+
+/* Grilla para los resultados de búsqueda */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* --- CHIPS (Etiquetas) --- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip-owner {
+  background-color: #e9ecef;
+  color: #495057;
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* --- SECCIÓN SOBRE NOSOTROS --- */
+.about-us-section {
+  text-align: center;
+  padding: 50px 20px;
+  background-color: #fff;
+  max-width: 800px;
+  margin: 40px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.about-us-section h2 {
+  margin-top: 0;
+}

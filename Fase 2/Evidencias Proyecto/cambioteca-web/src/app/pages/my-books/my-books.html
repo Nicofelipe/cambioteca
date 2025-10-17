@@ -1,0 +1,57 @@
+<div class="my-books-container">
+  <div class="header">
+    <h1>Mis Libros</h1>
+    <button class="btn btn-add">Añadir Nuevo Libro</button>
+  </div>
+
+  <!-- Mensaje de Carga -->
+  <div *ngIf="isLoading" class="message">Cargando tus libros...</div>
+  
+  <!-- Mensaje de Error -->
+  <div *ngIf="error" class="message error">{{ error }}</div>
+
+  <!-- Mensaje si no hay libros -->
+  <div *ngIf="!isLoading && myBooks.length === 0 && !error" class="empty-state">
+    <h2>Aún no has subido ningún libro</h2>
+    <p>¡Anímate a compartir tu primera lectura con la comunidad!</p>
+    <button class="btn btn-add">Subir mi primer libro</button>
+  </div>
+
+  <!-- Tabla con los libros del usuario -->
+  <div *ngIf="!isLoading && myBooks.length > 0" class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>Autor</th>
+          <th>Estado</th>
+          <th>Solicitudes</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let book of myBooks">
+          <td>{{ book.titulo }}</td>
+          <td>{{ book.autor }}</td>
+          <td>
+            <span class="status" [ngClass]="book.disponible ? 'available' : 'unavailable'">
+              {{ book.disponible ? 'Disponible' : 'No Disponible' }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="book.has_new_requests" class="notification">
+              ¡Nuevas!
+            </span>
+            <span *ngIf="!book.has_new_requests" class="no-requests">
+              Ninguna
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn btn-edit" (click)="editBook(book.id)">Editar</button>
+            <button class="btn btn-delete" (click)="deleteBook(book.id)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
