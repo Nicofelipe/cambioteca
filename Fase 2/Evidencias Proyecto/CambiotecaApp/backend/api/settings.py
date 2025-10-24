@@ -95,10 +95,10 @@ WSGI_APPLICATION = 'api.wsgi.application'
 '''DATABASES = { 
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME', 'cambioteca'),           
-        'USER': os.getenv('DB_USER', 'root'),                  
-        'PASSWORD': os.getenv('DB_PASS', 'Potopoto1.'),         
-        'HOST': os.getenv('DB_HOST', '127.0.0.1'),             
+        'NAME': os.getenv('DB_NAME', ''),           
+        'USER': os.getenv('DB_USER', ''),                  
+        'PASSWORD': os.getenv('DB_PASS', ''),         
+        'HOST': os.getenv('DB_HOST', ''),             
         'PORT': os.getenv('DB_PORT', '3306'),
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -111,10 +111,10 @@ WSGI_APPLICATION = 'api.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DB_NAME", "cambioteca"),
-        "USER": os.getenv("DB_USER", "admin"),
-        "PASSWORD": os.getenv("DB_PASS", "Potopoto1."),
-        "HOST": os.getenv("DB_HOST", "cambioteca.c9imiwwag3r9.us-east-2.rds.amazonaws.com"),
+        "NAME": os.getenv("DB_NAME", ""),
+        "USER": os.getenv("DB_USER", ""),
+        "PASSWORD": os.getenv("DB_PASS", ""),
+        "HOST": os.getenv("DB_HOST", ""),
         "PORT": os.getenv("DB_PORT", "3306"),
         "OPTIONS": {
             "charset": "utf8mb4",
@@ -225,8 +225,8 @@ EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 # prueba 587; si falla, 2525; si falla, 25
-EMAIL_HOST_USER = "cambioteca.cl@gmail.com"        # p.ej. 4d1b02e80b8267
-EMAIL_HOST_PASSWORD = "sdjv dngt fhwx jyba".replace(" ", "")   # p.ej. ****abb8
+EMAIL_HOST_USER = ""        # p.ej. 4d1b02e80b8267
+EMAIL_HOST_PASSWORD = "".replace(" ", "")   # p.ej. ****abb8
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER  # en sandbox vale cualquiera
 FRONTEND_RESET_URL = "http://localhost:8100/auth/reset"
 
