@@ -1,0 +1,60 @@
+<div class="profile-container">
+  <h2>Mi Perfil</h2>
+
+  <div *ngIf="isLoading" class="message">Cargando perfil...</div>
+  
+  <div *ngIf="user && !isLoading" class="profile-card">
+    <div class="profile-header">
+      <!-- Usamos la nueva función para obtener la URL completa de la imagen -->
+      <img [src]="getFullAvatarUrl(user.imagen_perfil)" alt="Foto de perfil" class="profile-avatar">
+      
+      <!-- Combinamos nombres y apellidos -->
+      <h3>{{ user.nombres }} {{ user.apellido_paterno }}</h3>
+      <p class="username">@{{ user.nombre_usuario }}</p>
+    </div>
+    
+    <div class="profile-stats">
+      <div class="stat-item">
+        <!-- Accedemos a los datos desde 'metrics' -->
+        <span class="stat-value">{{ metrics.libros }}</span>
+        <span class="stat-label">Libros Disponibles</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">{{ metrics.intercambios }}</span>
+        <span class="stat-label">Intercambios</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">
+          <!-- La calificación también viene de 'metrics' -->
+          {{ metrics.calificacion ? (metrics.calificacion | number:'1.1-1') : 'N/A' }} ⭐
+        </span>
+        <span class="stat-label">Calificación</span>
+      </div>
+    </div>
+
+    <div class="profile-details">
+      <div class="details-header">
+        <h4>Detalles de la Cuenta</h4>
+        <button class="btn-edit">Editar Perfil</button>
+      </div>
+      
+      <div class="details-grid">
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>RUT:</strong> {{ user.rut }}</p>
+        <p><strong>Teléfono:</strong> {{ user.telefono }}</p>
+        <p><strong>Dirección:</strong> {{ user.direccion_completa }}, {{ user.comuna_nombre }}</p>
+        <!-- 'fecha_registro' está dentro de 'user' -->
+        <p><strong>Usuario Verificado:</strong> 
+          <span [ngClass]="user.verificado ? 'verified' : 'unverified'">
+            {{ user.verificado ? 'Sí' : 'No' }}
+          </span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!user && !isLoading" class="profile-error">
+    <p>No se pudo cargar la información del perfil.</p>
+  </div>
+</div>
+
