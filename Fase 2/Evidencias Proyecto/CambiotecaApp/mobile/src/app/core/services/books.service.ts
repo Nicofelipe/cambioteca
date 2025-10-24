@@ -20,6 +20,7 @@ export interface MyBookCard {
   has_requests: boolean;
   comuna_nombre?: string | null;
   has_new_requests?: boolean;
+  editable?: boolean;
 }
 
 export interface BookHistoryItem {
@@ -209,6 +210,8 @@ export class BooksService {
     return this.api.patch(`/api/libros/${libroId}/update/`, data);
   }
 
+
+
   // === Imágenes ===
   uploadImage(
     libroId: number,
@@ -250,6 +253,7 @@ export class BooksService {
     | { type: 'cover-changed'; bookId: number; url: string }
     | { type: 'deleted'; bookId: number }
     | { type: 'created'; book: MyBookCard }
+    | { type: 'requests-seen'; bookId: number }   // 👈 NUEVO
   >();
   public myBooksEvents$ = this.myBooksEvents.asObservable();
 
@@ -262,7 +266,9 @@ export class BooksService {
   emitCreated(book: MyBookCard) {
     this.myBooksEvents.next({ type: 'created', book });
   }
-
+  emitRequestsSeen(bookId: number) {               // 👈 NUEVO
+    this.myBooksEvents.next({ type: 'requests-seen', bookId });
+  }
   // === Búsqueda por título exacto (vista de resultados)
   listByTitle(title: string) {
     return this.api.get<BookByTitleItem[]>('/api/libros/by-title/', {
@@ -281,6 +287,7 @@ export class BooksService {
   }) {
     return this.api.post<{ id_intercambio: number }>('/api/intercambios/create/', payload);
   }
+
 
 
 }

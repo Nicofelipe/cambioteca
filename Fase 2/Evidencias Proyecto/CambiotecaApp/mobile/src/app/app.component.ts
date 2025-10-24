@@ -30,6 +30,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Login', redirectTo: '/auth/login', icon: 'log-in' },
     { name: 'Registro', redirectTo: '/auth/register', icon: 'person' },
     { name: 'Mis libros', redirectTo: '/my-books', icon: 'library-outline' },
+    { name: 'Solicitudes', redirectTo: '/requests',  icon: 'swap-horizontal-outline' },
   ];
 
   get visibleItems(): MenuItem[] {
@@ -38,7 +39,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
       return this.items.filter(i => !['/auth/login', '/auth/register'].includes(i.redirectTo));
     }
     // invitado: ocultar "Mis libros"
-    return this.items.filter(i => i.redirectTo !== '/my-books');
+     return this.items.filter(i => !['/my-books', '/requests'].includes(i.redirectTo));
+    
   }
 
   // 👇 HAZLO OPCIONAL y con { static: false }

@@ -27,6 +27,9 @@ const routes: Routes = [
 
   { path: 'chats', loadComponent: () => import('./pages/chats/list/list.page').then(m => m.ListPage) },
   { path: 'chats/:id', loadComponent: () => import('./pages/chats/room/room.page').then(m => m.RoomPage) },
+  { path: 'requests', loadComponent: () => import('./pages/requests/requests.page').then(m => m.RequestsPage),},
+  { path: 'requests/:id', loadComponent: () => import('./pages/request-detail/request-detail.page').then(m => m.RequestDetailPage),},
+  { path: 'users/:id', loadComponent: () => import('./pages/user-profile/user-profile.page').then(m => m.UserProfilePage) },
 
   { path: '**', redirectTo: 'home' },
 ];

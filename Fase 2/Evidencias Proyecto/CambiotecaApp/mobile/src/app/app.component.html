@@ -49,15 +49,18 @@
           </ion-item>
         </ion-menu-toggle>
 
+
         <ion-menu-toggle auto-hide="true" *ngIf="user">
-        <ion-item routerLink="/chats" routerLinkActive="activated" detail="true">
-          <ion-icon slot="start" name="chatbubbles-outline"></ion-icon>
-          <ion-label>Chats</ion-label>
-        </ion-item>
-      </ion-menu-toggle>
+          <ion-item routerLink="/chats" routerLinkActive="activated" detail="true">
+            <ion-icon slot="start" name="chatbubbles-outline"></ion-icon>
+            <ion-label>Chats</ion-label>
+          </ion-item>
+        </ion-menu-toggle>
+
+
       </ion-list>
 
-      
+
 
 
       <!-- Cerrar sesión al final, solo logueado -->
@@ -94,9 +97,9 @@
         <ion-icon name="add"></ion-icon>
       </button>
 
-      <button class="tab" routerLink="/my-books" aria-label="Mis libros">
-        <ion-icon name="library-outline"></ion-icon>
-        <span>Mis libros</span>
+      <button class="tab" routerLink="/requests" aria-label="Solicitudes">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        <span>Solicitudes</span>
       </button>
 
       <button class="tab" routerLink="/profile" aria-label="Perfil">

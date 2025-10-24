@@ -40,6 +40,10 @@ export class MyBooksPage implements OnInit, OnDestroy {
         this.books.update(list => list.filter(b => b.id !== ev.bookId));
       } else if (ev.type === 'created') {
         this.books.update(list => [ev.book, ...list]);
+      } else if (ev.type === 'requests-seen') {               // 👈 NUEVO
+        this.books.update(list =>
+          list.map(b => b.id === ev.bookId ? ({ ...b, has_new_requests: false }) : b)
+        );
       }
     });
   }

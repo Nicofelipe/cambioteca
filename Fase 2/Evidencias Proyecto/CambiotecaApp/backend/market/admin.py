@@ -1,152 +1,105 @@
 # market/admin.py
-from django.contrib import admin
-from .models import Libro, ImagenLibro, Intercambio, Mensaje, Favorito, Clasificacion, Conversacion, ConversacionParticipante, ConversacionMensaje, LibroSolicitudesVistas
 
-# ---- Inlines ----
+from django.contrib import admin
+from .models import (
+    Intercambio, IntercambioCodigo, SolicitudIntercambio, SolicitudOferta, Libro, Genero, Calificacion, Favorito, ImagenLibro # Importamos los nuevos modelos
+)
+# Ya no necesitamos importar el modelo 'Intercambio' si lo vamos a eliminar
+
+# ---- Registros básicos (se mantienen igual) ----
+admin.site.register(Genero)
+admin.site.register(Favorito)
+
+
+# ---- Configuraciones de Admin Mejoradas ----
+
 class ImagenLibroInline(admin.TabularInline):
     model = ImagenLibro
     fk_name = "id_libro"
     extra = 0
     fields = ("url_imagen", "descripcion", "orden", "is_portada")
-    show_change_link = True
-
-
-class MensajeInline(admin.TabularInline):
-    model = Mensaje
-    fk_name = "id_intercambio"
-    extra = 0
-    fields = ("mensaje", "fecha_envio", "id_usuario_emisor", "id_usuario_receptor")
-    raw_id_fields = ("id_usuario_emisor", "id_usuario_receptor")
-    ordering = ("-fecha_envio",)
-
 
 @admin.register(Libro)
 class LibroAdmin(admin.ModelAdmin):
-    list_display = (
-        "id_libro", "titulo", "autor", "genero_nombre", "estado",
-        "id_usuario", "disponible", "fecha_subida",
-    )
-    search_fields = (
-        "titulo", "autor", "isbn", "editorial",
-        # si hay FK a Genero:
-        "id_genero__nombre",
-    )
-    list_filter = (
-        "estado", "tipo_tapa", "editorial", "anio_publicacion", "disponible",
-        # si hay FK a Genero:
-        "id_genero",
-    )
+    list_display = ("id_libro", "titulo", "autor", "id_usuario", "disponible", "fecha_subida")
+    search_fields = ("titulo", "autor", "isbn", "id_usuario__nombre_usuario")
+    list_filter = ("disponible", "estado", "tipo_tapa")
     date_hierarchy = "fecha_subida"
-    ordering = ("-fecha_subida", "-id_libro")
-    list_per_page = 50
-    raw_id_fields = ("id_usuario",)
-    list_select_related = ("id_usuario",)
+    ordering = ("-fecha_subida",)
+    raw_id_fields = ("id_usuario", "id_genero")
     inlines = [ImagenLibroInline]
-
-    @admin.display(description="Género")
-    def genero_nombre(self, obj):
-        """
-        Soporta ambos esquemas:
-        - Nuevo: obj.id_genero (FK) -> obj.id_genero.nombre
-        - Viejo: obj.genero (CharField)
-        """
-        # Nuevo esquema (FK)
-        if hasattr(obj, "id_genero") and getattr(obj, "id_genero", None):
-            try:
-                return getattr(obj.id_genero, "nombre", None)
-            except Exception:
-                pass
-        # Esquema anterior (CharField)
-        if hasattr(obj, "genero"):
-            return getattr(obj, "genero", None)
-        return None
-
 
 @admin.register(ImagenLibro)
 class ImagenLibroAdmin(admin.ModelAdmin):
-    list_display = (
-        "id_imagen", "id_libro", "orden", "is_portada",
-        "descripcion", "url_imagen", "created_at",
-    )
-    list_filter = ("is_portada",)
-    search_fields = ("descripcion", "url_imagen", "id_libro__titulo")
+    list_display = ("id_imagen", "id_libro", "orden", "is_portada")
+    search_fields = ("id_libro__titulo",)
     raw_id_fields = ("id_libro",)
-    ordering = ("-created_at", "-id_imagen")
 
+
+# --- NUEVA Y POTENTE CONFIGURACIÓN PARA SOLICITUDES ---
+
+# Esto permite ver los libros ofrecidos DENTRO de la vista de la solicitud
+class SolicitudOfertaInline(admin.TabularInline):
+    model = SolicitudOferta
+    extra = 1  # Campos para añadir nuevos libros
+    raw_id_fields = ('id_libro_ofrecido',)
+
+@admin.register(SolicitudIntercambio)
+class SolicitudIntercambioAdmin(admin.ModelAdmin):
+    list_display = (
+        'id_solicitud',
+        'estado',
+        'solicitante_user', # Método personalizado
+        'receptor_user',    # Método personalizado
+        'id_libro_deseado',
+        'creada_en'
+    )
+    list_filter = ('estado', 'creada_en')
+    search_fields = (
+        'id_usuario_solicitante__nombre_usuario',
+        'id_usuario_receptor__nombre_usuario',
+        'id_libro_deseado__titulo'
+    )
+    raw_id_fields = (
+        'id_usuario_solicitante',
+        'id_usuario_receptor',
+        'id_libro_deseado',
+        'id_libro_ofrecido_aceptado'
+    )
+    inlines = [SolicitudOfertaInline] # Muestra las ofertas directamente aquí
+
+    @admin.display(description='Solicitante')
+    def solicitante_user(self, obj):
+        return obj.id_usuario_solicitante.nombre_usuario
+
+    @admin.display(description='Receptor')
+    def receptor_user(self, obj):
+        return obj.id_usuario_receptor.nombre_usuario
+
+
+@admin.register(Calificacion)
+class ClasificacionAdmin(admin.ModelAdmin):
+    list_display = ("id_clasificacion", "id_usuario_calificador", "id_usuario_calificado", "puntuacion")
+    raw_id_fields = ("id_usuario_calificador", "id_usuario_calificado")
+
+# ---------------------------------------------------------------
+# BORRAMOS o COMENTAMOS las configuraciones de los modelos viejos
+# que ya no usamos o que no son relevantes ahora
+# ---------------------------------------------------------------
+# @admin.register(Intercambio) -> La eliminamos porque el modelo cambió
+# @admin.register(Mensaje) -> La eliminamos porque el chat ahora depende de 'Conversacion'
+# @admin.register(Conversacion) -> etc...
+# ... puedes añadirlas de nuevo si las necesitas, pero sin errores
 
 @admin.register(Intercambio)
 class IntercambioAdmin(admin.ModelAdmin):
-    list_display = (
-        "id_intercambio", "id_usuario_solicitante", "id_usuario_ofreciente",
-        "id_libro_solicitado", "id_libro_ofrecido",
-        "estado_intercambio", "lugar_intercambio", "fecha_intercambio", "fecha_completado",
-    )
-    list_filter = ("estado_intercambio", "fecha_intercambio")
-    search_fields = (
-        "id_usuario_solicitante__nombre_usuario",
-        "id_usuario_ofreciente__nombre_usuario",
-        "id_libro_solicitado__titulo",
-        "id_libro_ofrecido__titulo",
-        "lugar_intercambio",
-    )
-    date_hierarchy = "fecha_intercambio"
-    ordering = ("-fecha_intercambio", "estado_intercambio")
-    list_per_page = 50
-    raw_id_fields = (
-        "id_usuario_solicitante", "id_usuario_ofreciente",
-        "id_libro_solicitado", "id_libro_ofrecido",
-    )
-    list_select_related = (
-        "id_usuario_solicitante", "id_usuario_ofreciente",
-        "id_libro_solicitado", "id_libro_ofrecido",
-    )
-    inlines = [MensajeInline]
+    list_display = ('id_intercambio','id_solicitud','id_libro_ofrecido_aceptado','estado_intercambio','lugar_intercambio','fecha_intercambio_pactada','fecha_completado')
+    list_filter = ('estado_intercambio',)
+    search_fields = ('id_solicitud__id_usuario_solicitante__nombre_usuario','id_solicitud__id_usuario_receptor__nombre_usuario','id_libro_ofrecido_aceptado__titulo')
+    raw_id_fields = ('id_solicitud','id_libro_ofrecido_aceptado')
 
-
-@admin.register(Mensaje)
-class MensajeAdmin(admin.ModelAdmin):
-    list_display = ("id_mensaje", "id_intercambio", "id_usuario_emisor", "id_usuario_receptor", "fecha_envio")
-    search_fields = ("mensaje", "id_usuario_emisor__nombre_usuario", "id_usuario_receptor__nombre_usuario")
-    date_hierarchy = "fecha_envio"
-    ordering = ("-fecha_envio",)
-    raw_id_fields = ("id_intercambio", "id_usuario_emisor", "id_usuario_receptor")
-    list_select_related = ("id_intercambio", "id_usuario_emisor", "id_usuario_receptor")
-
-
-@admin.register(Favorito)
-class FavoritoAdmin(admin.ModelAdmin):
-    list_display = ("id_favorito", "id_usuario", "id_libro")
-    search_fields = ("id_usuario__nombre_usuario", "id_libro__titulo")
-    raw_id_fields = ("id_usuario", "id_libro")
-    list_select_related = ("id_usuario", "id_libro")
-
-
-@admin.register(Clasificacion)
-class ClasificacionAdmin(admin.ModelAdmin):
-    list_display = ("id_clasificacion", "id_usuario_calificador", "id_usuario_calificado", "puntuacion")
-    list_filter = ("puntuacion",)
-    search_fields = (
-        "id_usuario_calificador__nombre_usuario",
-        "id_usuario_calificado__nombre_usuario",
-        "comentario",
-    )
-    raw_id_fields = ("id_usuario_calificador", "id_usuario_calificado")
-    list_select_related = ("id_usuario_calificador", "id_usuario_calificado")
-
-@admin.register(Conversacion)
-class ConversacionAdmin(admin.ModelAdmin):
-    list_display = ("id_conversacion", "id_intercambio", "creado_en", "actualizado_en")
-
-@admin.register(ConversacionParticipante)
-class ConversacionParticipanteAdmin(admin.ModelAdmin):
-    list_display = ("id_conversacion", "id_usuario", "rol", "silenciado", "archivado", "ultimo_visto_id_mensaje", "visto_en")
-    list_filter = ("silenciado", "archivado")
-
-@admin.register(ConversacionMensaje)
-class ConversacionMensajeAdmin(admin.ModelAdmin):
-    list_display = ("id_mensaje", "id_conversacion", "id_usuario_emisor", "enviado_en", "eliminado")
-    list_filter = ("eliminado",)
-
-@admin.register(LibroSolicitudesVistas)
-class LibroSolicitudesVistasAdmin(admin.ModelAdmin):
-    list_display = ("id", "id_usuario", "id_libro", "ultimo_visto_id_intercambio", "visto_por_ultima_vez")
+@admin.register(IntercambioCodigo)
+class IntercambioCodigoAdmin(admin.ModelAdmin):
+    list_display = ('id_intercambio','codigo','expira_en','usado_en')
+    search_fields = ('codigo',)
+    raw_id_fields = ('id_intercambio',)

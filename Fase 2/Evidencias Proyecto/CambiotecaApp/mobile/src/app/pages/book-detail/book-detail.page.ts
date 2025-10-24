@@ -1,5 +1,5 @@
 // src/app/pages/book-detail/book-detail.page.ts
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +12,7 @@ import { CatalogService, Genero } from 'src/app/core/services/catalog.service';
 
 const PLACEHOLDER = '/assets/librodefecto.png';
 
+
 @Component({
   selector: 'app-my-book-detail',
   standalone: true,
@@ -23,6 +24,57 @@ export class MyBookDetailPage implements OnInit {
   loading = signal(true);
   book = signal<(MyBookWithHistory & any) | null>(null);
   showRequests = signal(false);
+
+
+
+  private DB_TO_UI: Record<string, string> = {
+    'nuevo': 'Nuevo',
+    'como nuevo': 'Como Nuevo',
+    'buen estado': 'Usado',
+    'con desgaste': 'Gastado',
+  };
+
+  // UI -> DB (lo que selecciona el usuario a lo que espera el ENUM)
+  private UI_TO_DB: Record<string, string> = {
+    'nuevo': 'Nuevo',
+    'como nuevo': 'Como nuevo',
+    'usado': 'Buen estado',
+    'gastado': 'Con desgaste',
+  };
+
+  // después
+  toUiEstado(raw?: string): string {
+    const k = String(raw || '').trim().toLowerCase();
+    return this.DB_TO_UI[k] ?? 'Usado';
+  }
+
+  private uiToDbEstado(ui?: string): string {
+    const k = String(ui || '').trim().toLowerCase();
+    return this.UI_TO_DB[k] ?? 'Buen estado';
+  }
+
+  readonly ESTADOS = ['Nuevo', 'Como Nuevo', 'Usado', 'Gastado'] as const;
+  readonly TAPAS = ['Tapa dura', 'Tapa blanda'] as const;
+
+
+
+  private TAPA_MAP: Record<string, string> = {
+    'tapada dura': 'Tapa dura',   // typo común
+    'tapa blanca': 'Tapa blanda', // typo común
+    'tapa dura': 'Tapa dura',
+    'tapa blanda': 'Tapa blanda',
+  };
+
+  private pickGeneroId(src: any, lista: Genero[]): number | null {
+    if (src?.id_genero != null) return Number(src.id_genero);
+    const nom = String(src?.genero_nombre || src?.genero || '').trim().toLowerCase();
+    if (!nom) return null;
+    const hit = lista.find(g => String(g.nombre).trim().toLowerCase() === nom);
+    return hit ? Number(hit.id_genero) : null;
+  }
+
+  // Para ion-select compareWith
+  compareNumber = (a: any, b: any) => Number(a) === Number(b);
 
   // Galería
   images = signal<BookImage[]>([]);
@@ -53,6 +105,18 @@ export class MyBookDetailPage implements OnInit {
     total: 0, completados: 0, pendientes: 0, aceptados: 0, rechazados: 0,
   }));
 
+  imagesLocked = computed(() => {
+    const b = this.book();
+    if (!b) return false;
+    // si backend manda editable=false, bloquea todo
+    if (b.editable === false) return true;
+    // fallback por si este endpoint no trae 'editable'
+    const hist = b.history || [];
+    return hist.some((h: any) => String(h?.estado || '').toLowerCase() === 'completado');
+  });
+
+
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -61,7 +125,8 @@ export class MyBookDetailPage implements OnInit {
     private toastCtrl: ToastController,
     private alertCtrl: AlertController,
     private catalog: CatalogService,
-  ) {}
+    private location: Location, 
+  ) { }
 
   async ngOnInit() {
     await this.auth.restoreSession();
@@ -73,8 +138,8 @@ export class MyBookDetailPage implements OnInit {
 
     this.loading.set(true);
     try {
-      // 1) “Mis libros con historia” (contadores/solicitudes)
-      const all = await this.booksSvc.getMineWithHistory(me.id, 20).toPromise();
+      // 1) “Mis libros con historia” (para history/contadores)
+      const all = await firstValueFrom(this.booksSvc.getMineWithHistory(me.id, 20));
       const found = (all || []).find(x => x.id === id);
       if (!found) {
         await this.toast('No se encontró el libro.');
@@ -82,10 +147,10 @@ export class MyBookDetailPage implements OnInit {
         return;
       }
 
-      // 2) Detalle completo (isbn, año, id_genero, genero_nombre)
+      // 2) Detalle completo (isbn, año, id_genero, genero_nombre, etc.)
       const full = await firstValueFrom(this.booksSvc.get(id));
 
-      // 3) Mezcla
+      // 3) Mezcla y set en señal
       const merged = { ...found, ...full };
       this.book.set(merged);
 
@@ -93,23 +158,46 @@ export class MyBookDetailPage implements OnInit {
       await this.loadImages(id);
 
       // 5) Catálogo de géneros
-      try { this.generos = await this.catalog.generos(); } catch { this.generos = []; }
+      try {
+        const lista = await this.catalog.generos();
+        this.generos = (lista || []).map(g => ({ ...g, id_genero: Number(g.id_genero) }));
+      } catch {
+        this.generos = [];
+      }
+      // 6) Normalizaciones varias…
 
-      // 6) Estado de edición (usar DETALLE)
+      const tapaNorm = this.TAPA_MAP[String(merged.tipo_tapa ?? '').toLowerCase()] || merged.tipo_tapa;
+
+      // 🔐 resolver id_genero con fallback por nombre
+      const idGenero = this.pickGeneroId(merged, this.generos);
+
       this.edit = {
-        titulo: merged.titulo,
-        autor: merged.autor,
-        editorial: merged.editorial,
-        tipo_tapa: merged.tipo_tapa,
-        estado: merged.estado,
-        descripcion: merged.descripcion,
-        disponible: merged.disponible,
+        titulo: merged.titulo ?? '',
+        autor: merged.autor ?? '',
+        editorial: merged.editorial ?? '',
+        tipo_tapa: this.TAPAS.includes(tapaNorm as any) ? tapaNorm : 'Tapa blanda',
+        estado: this.toUiEstado(merged.estado),
+        descripcion: merged.descripcion ?? '',
+        disponible: merged.disponible ?? true,
         isbn: merged.isbn ?? '',
-        anio_publicacion: merged.anio_publicacion ?? null,
-        id_genero: merged.id_genero ?? null,
+        anio_publicacion: typeof merged.anio_publicacion === 'number' ? merged.anio_publicacion : null,
+        id_genero: idGenero,                // 👈 ya llega seteado y como number
       };
     } finally {
       this.loading.set(false);
+    }
+  }
+
+  async ionViewWillEnter() {
+    await this.auth.restoreSession();
+    const me = this.auth.user;
+    const b = this.book();
+    if (me && b) {
+      try {
+        await this.booksSvc.markRequestsSeen(b.id, me.id).toPromise();
+        this.book.update(cur => cur ? ({ ...cur, has_new_requests: false } as any) : cur);
+        this.booksSvc.emitRequestsSeen(b.id); // notifica a la lista
+      } catch { }
     }
   }
 
@@ -127,7 +215,7 @@ export class MyBookDetailPage implements OnInit {
       if (me && b) {
         this.booksSvc.markRequestsSeen(b.id, me.id).toPromise()
           .then(() => this.book.update(cur => cur ? ({ ...cur, has_new_requests: false } as any) : cur))
-          .catch(() => {});
+          .catch(() => { });
       }
     }
   }
@@ -154,25 +242,45 @@ export class MyBookDetailPage implements OnInit {
 
   async setAsCover(imagenId?: number) {
     if (!imagenId) return;
-    await this.booksSvc.setCover(imagenId, true).toPromise();
-    const after = (this.images() || []).map(i => ({ ...i, is_portada: i.id_imagen === imagenId }));
-    this.images.set(after);
-    const sel = after.find(x => x.id_imagen === imagenId);
-    if (sel) {
-      this.book.update(cur => cur ? ({ ...cur, first_image: sel.url_abs } as any) : cur);
-      const b = this.book(); if (b) this.booksSvc.emitCoverChanged(b.id, sel.url_abs);
+    if (this.imagesLocked()) {
+      await this.toast('No puedes modificar imágenes: intercambio Completado.');
+      return;
     }
-    await this.toast('Portada actualizada');
+    try {
+      await this.booksSvc.setCover(imagenId, true).toPromise();
+      const after = (this.images() || []).map(i => ({ ...i, is_portada: i.id_imagen === imagenId }));
+      this.images.set(after);
+      const sel = after.find(x => x.id_imagen === imagenId);
+      if (sel) {
+        this.book.update(cur => cur ? ({ ...cur, first_image: sel.url_abs } as any) : cur);
+        const b = this.book(); if (b) this.booksSvc.emitCoverChanged(b.id, sel.url_abs);
+      }
+      await this.toast('Portada actualizada');
+    } catch (err: any) {
+      if (err?.status === 409) return this.toast('No puedes modificar imágenes: intercambio Completado.');
+      const msg = err?.error?.detail || 'No se pudo actualizar la portada';
+      await this.toast(msg);
+    }
   }
 
   async deleteImage(imagenId?: number) {
     if (!imagenId) return;
-    await this.booksSvc.deleteImage(imagenId).toPromise();
-    const newArr = (this.images() || []).filter(i => i.id_imagen !== imagenId);
-    this.images.set(newArr);
-    if (this.galleryIndex() >= newArr.length) this.galleryIndex.set(Math.max(0, newArr.length - 1));
-    if (newArr.length === 0) this.book.update(cur => cur ? ({ ...cur, first_image: null } as any) : cur);
-    await this.toast('Imagen eliminada');
+    if (this.imagesLocked()) {
+      await this.toast('No puedes modificar imágenes: intercambio Completado.');
+      return;
+    }
+    try {
+      await this.booksSvc.deleteImage(imagenId).toPromise();
+      const newArr = (this.images() || []).filter(i => i.id_imagen !== imagenId);
+      this.images.set(newArr);
+      if (this.galleryIndex() >= newArr.length) this.galleryIndex.set(Math.max(0, newArr.length - 1));
+      if (newArr.length === 0) this.book.update(cur => cur ? ({ ...cur, first_image: null } as any) : cur);
+      await this.toast('Imagen eliminada');
+    } catch (err: any) {
+      if (err?.status === 409) return this.toast('No puedes modificar imágenes: intercambio Completado.');
+      const msg = err?.error?.detail || 'No se pudo eliminar la imagen';
+      await this.toast(msg);
+    }
   }
 
   onPortadaModeChange(ev: CustomEvent) {
@@ -182,11 +290,15 @@ export class MyBookDetailPage implements OnInit {
 
   // Pre-subida
   onPickFiles(ev: Event) {
+    if (this.imagesLocked()) {
+      this.toast('No puedes modificar imágenes: intercambio Completado.');
+      return;
+    }
     const input = ev.target as HTMLInputElement;
     const list = input?.files;
     if (!list || !list.length) return;
 
-    try { this.pendingPreviews().forEach(url => URL.revokeObjectURL(url)); } catch {}
+    try { this.pendingPreviews().forEach(url => URL.revokeObjectURL(url)); } catch { }
 
     const files: File[] = []; const previews: string[] = [];
     for (let i = 0; i < list.length; i++) {
@@ -200,15 +312,21 @@ export class MyBookDetailPage implements OnInit {
     this.pendingCoverIndex.set(0);
     this.portadaMode.set('keep');
   }
+
   setPendingCover(i: number) { if (this.portadaMode() === 'new') this.pendingCoverIndex.set(i); }
   clearPending() {
-    try { this.pendingPreviews().forEach(url => URL.revokeObjectURL(url)); } catch {}
+    try { this.pendingPreviews().forEach(url => URL.revokeObjectURL(url)); } catch { }
     this.pendingFiles.set([]); this.pendingPreviews.set([]); this.pendingCoverIndex.set(0); this.portadaMode.set('keep');
   }
 
   async uploadPending() {
     const b = this.book(); const files = this.pendingFiles();
     if (!b || !files.length) return;
+
+    if (this.imagesLocked()) {
+      await this.toast('No puedes modificar imágenes: intercambio Completado.');
+      return;
+    }
 
     const current = this.images();
     let maxOrd = 0; for (const im of current) { const o = Number(im.orden ?? 0); if (!Number.isNaN(o)) maxOrd = Math.max(maxOrd, o); }
@@ -247,25 +365,48 @@ export class MyBookDetailPage implements OnInit {
       await this.toast(ordered.length === 1 ? 'Imagen subida' : 'Imágenes subidas');
       this.clearPending();
     } catch (err: any) {
-      const msg = err?.error?.imagen?.[0] || err?.error?.image?.[0] || err?.error?.detail || 'No se pudo subir la(s) imagen(es)';
-      console.error(err);
-      await this.toast(msg);
+      if (err?.status === 409) {
+        await this.toast('No puedes modificar imágenes: intercambio Completado.');
+      } else {
+        const msg = err?.error?.imagen?.[0] || err?.error?.image?.[0] || err?.error?.detail || 'No se pudo subir la(s) imagen(es)';
+        console.error(err);
+        await this.toast(msg);
+      }
     } finally { this.uploading.set(false); }
   }
 
+  editLocked = computed(() => {
+    const b = this.book();
+    if (!b) return false;
+    if (b.editable === false) return true;
+    const hist = b.history || [];
+    return hist.some((h: any) => String(h?.estado || '').toLowerCase() === 'completado');
+  });
+
   // Edición
-  openEdit() { this.editOpen.set(true); }
+  openEdit() {
+    if (this.editLocked()) {
+      this.toast('No puedes editar: este libro tiene un intercambio Completado.');
+      return;
+    }
+    this.editOpen.set(true);
+  }
   closeEdit() { this.editOpen.set(false); }
 
   async saveEdit() {
     const b = this.book(); if (!b) return;
+
+    if (this.editLocked()) {
+      await this.toast('No puedes editar: este libro tiene un intercambio Completado.');
+      return;
+    }
 
     const payload: any = {
       titulo: this.edit.titulo,
       autor: this.edit.autor,
       editorial: this.edit.editorial,
       tipo_tapa: this.edit.tipo_tapa,
-      estado: this.edit.estado,
+      estado: this.uiToDbEstado(this.edit.estado),
       descripcion: this.edit.descripcion,
       disponible: this.edit.disponible,
       isbn: this.edit.isbn,
@@ -310,6 +451,10 @@ export class MyBookDetailPage implements OnInit {
               await this.toast('Publicación eliminada');
               this.router.navigateByUrl('/my-books', { replaceUrl: true });
             } catch (e: any) {
+              if (e?.status === 409) {
+                // bloqueado por intercambio completado
+                return this.toast('No se puede eliminar: este libro participa en un intercambio Completado.');
+              }
               const msg = e?.error?.detail || 'No se pudo eliminar';
               await this.toast(msg);
             }
@@ -318,5 +463,42 @@ export class MyBookDetailPage implements OnInit {
       ],
     });
     await alert.present();
+  }
+
+  estadoColor(e?: string): 'success' | 'tertiary' | 'warning' | 'danger' | 'medium' {
+    const v = this.toUiEstado(e).toLowerCase();
+    if (v === 'nuevo') return 'success';
+    if (v === 'como nuevo') return 'tertiary';
+    if (v === 'usado') return 'warning';
+    if (v === 'gastado') return 'medium';
+    return 'medium';
+  }
+
+  solicitudIcono(estado?: string): string {
+    const v = String(estado || '').toLowerCase();
+    if (v === 'completado') return 'checkmark-circle';
+    if (v === 'aceptado') return 'checkmark-done-circle';
+    if (v === 'rechazado') return 'close-circle';
+    if (v === 'cancelado') return 'alert-circle';
+    return 'time'; // Pendiente / default
+  }
+
+  fallbackHref = '/';
+
+  goBack() {
+  if (window.history.length > 1) {
+    this.location.back();
+  } else {
+    this.router.navigateByUrl(this.fallbackHref);
+  }
+}
+
+  solicitudColor(estado?: string): 'success' | 'primary' | 'warning' | 'danger' | 'medium' {
+    const v = String(estado || '').toLowerCase();
+    if (v === 'completado') return 'success';
+    if (v === 'aceptado') return 'primary';
+    if (v === 'rechazado') return 'danger';
+    if (v === 'cancelado') return 'medium';
+    return 'warning'; // Pendiente
   }
 }

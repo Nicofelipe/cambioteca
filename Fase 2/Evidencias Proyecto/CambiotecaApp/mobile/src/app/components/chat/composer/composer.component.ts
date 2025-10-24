@@ -15,7 +15,7 @@ import { IonicModule } from '@ionic/angular';
       (keyup.enter)="emit()"
     ></ion-input>
 
-    <ion-button (click)="emit()" [disabled]="!text?.trim()">
+    <ion-button (click)="emit()" [disabled]="!text.trim()">
       <ion-icon name="send-outline"></ion-icon>
     </ion-button>
   </div>

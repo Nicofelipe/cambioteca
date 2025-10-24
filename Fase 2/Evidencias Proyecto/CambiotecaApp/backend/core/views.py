@@ -301,8 +301,11 @@ def user_profile_view(request, user_id: int):
 
     # === CAMBIO: sólo intercambios Completados donde participó
     intercambios_count = Intercambio.objects.filter(
-        (Q(id_usuario_solicitante_id=user_id) | Q(id_usuario_ofreciente_id=user_id)) &
-        Q(estado_intercambio='Completado')
+    estado_intercambio='Completado',
+    id_solicitud__id_usuario_solicitante_id=user_id
+    ).count() + Intercambio.objects.filter(
+        estado_intercambio='Completado',
+        id_solicitud__id_usuario_receptor_id=user_id
     ).count()
 
     agg = Calificacion.objects.filter(id_usuario_calificado_id=user_id).aggregate(
@@ -334,25 +337,82 @@ def user_profile_view(request, user_id: int):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def user_intercambios_view(request, user_id: int):
-    qs = Intercambio.objects.filter(
-        Q(id_usuario_solicitante_id=user_id) | Q(id_usuario_ofreciente_id=user_id)
-    ).select_related(
-        'id_usuario_solicitante', 'id_usuario_ofreciente',
-        'id_libro_solicitado', 'id_libro_ofrecido'
-    ).order_by('-id_intercambio')
+    from django.db.models import Q
+    # imports locales para no tocar los de arriba
+    from market.models import Intercambio, ImagenLibro, Conversacion
 
-    def map_i(i: "Intercambio"):
-        return {
+    qs = (
+        Intercambio.objects
+        .select_related(
+            'id_solicitud',
+            'id_libro_ofrecido_aceptado',
+            'id_solicitud__id_libro_deseado',
+            'id_solicitud__id_usuario_solicitante',
+            'id_solicitud__id_usuario_receptor'
+        )
+        .filter(
+            Q(id_solicitud__id_usuario_solicitante_id=user_id) |
+            Q(id_solicitud__id_usuario_receptor_id=user_id)
+        )
+        .order_by('-id_intercambio')
+    )
+
+    def _portada_abs(libro):
+        if not libro:
+            return None
+        rel = (
+            ImagenLibro.objects
+            .filter(id_libro=libro)
+            .order_by('-is_portada', 'orden', 'id_imagen')
+            .values_list('url_imagen', flat=True)
+            .first()
+        ) or ''
+        return _abs_media_url(request, rel)
+
+    out = []
+    for i in qs:
+        si = i.id_solicitud
+
+        # ✅ roles correctos:
+        # - solicitante = quien creó la solicitud (y ofreció el libro aceptado)
+        # - ofreciente  = el mismo solicitante (dueño del libro ofrecido aceptado)
+        # - solicitado  = usuario receptor (dueño del libro deseado)
+        solicitante_nombre = getattr(si.id_usuario_solicitante, 'nombre_usuario', None)
+        solicitado_nombre  = getattr(si.id_usuario_receptor,   'nombre_usuario', None)
+
+        ld = si.id_libro_deseado
+        lo = i.id_libro_ofrecido_aceptado
+
+        # Conversación del intercambio (si existe)
+        conv = Conversacion.objects.filter(id_intercambio=i).first()
+
+        out.append({
             "id": i.id_intercambio,
             "estado": i.estado_intercambio,
-            "fecha_intercambio": i.fecha_intercambio,
-            "solicitante": getattr(i.id_usuario_solicitante, 'nombre_usuario', None),
-            "ofreciente": getattr(i.id_usuario_ofreciente, 'nombre_usuario', None),
-            "libro_solicitado": getattr(i.id_libro_solicitado, 'titulo', None),
-            "libro_ofrecido": getattr(i.id_libro_ofrecido, 'titulo', None),
-        }
+            "fecha_intercambio": (
+                i.fecha_intercambio_pactada or
+                i.fecha_completado or
+                si.actualizada_en or
+                si.creada_en
+            ),
+            "solicitante": solicitante_nombre,
+            "ofreciente": solicitante_nombre,   # 👈 antes estaba invertido
+            "solicitado": solicitado_nombre,
+            "libro_deseado": {
+                "id": getattr(ld, 'id_libro', None),
+                "titulo": getattr(ld, 'titulo', None),
+                "portada": _portada_abs(ld),
+            },
+            "libro_ofrecido": {
+                "id": getattr(lo, 'id_libro', None),
+                "titulo": getattr(lo, 'titulo', None),
+                "portada": _portada_abs(lo),
+            },
+            "lugar": i.lugar_intercambio,
+            "conversacion_id": getattr(conv, "id_conversacion", None),  # para que el chat aparezca abajo
+        })
 
-    return Response([map_i(i) for i in qs])
+    return Response(out)
 
 @api_view(["POST"])
 @permission_classes([AllowAny])
@@ -403,8 +463,8 @@ def user_summary(request, id: int):
 
     # === CAMBIO: contar sólo intercambios Completados
     inter = Intercambio.objects.filter(
-        (Q(id_usuario_solicitante=id) | Q(id_usuario_ofreciente=id)) &
-        Q(estado_intercambio='Completado')
+        Q(id_solicitud__id_usuario_solicitante=id) | Q(id_solicitud__id_usuario_receptor=id),
+        estado_intercambio='Completado'
     ).count()
 
     rating = (Calificacion.objects
@@ -413,23 +473,21 @@ def user_summary(request, id: int):
               .get("avg") or 0)
 
     recents = (Intercambio.objects
-               .filter(Q(id_usuario_solicitante=id) | Q(id_usuario_ofreciente=id))
-               .order_by("-id_intercambio")[:10])
+           .select_related('id_solicitud', 'id_libro_ofrecido_aceptado', 'id_solicitud__id_libro_deseado')
+           .filter(Q(id_solicitud__id_usuario_solicitante=id) | Q(id_solicitud__id_usuario_receptor=id))
+           .order_by("-id_intercambio")[:10])
 
     history = []
     for it in recents:
-        titulo = "Intercambio"
-        try:
-            a = Libro.objects.get(pk=it.id_libro_ofrecido_id)
-            b = Libro.objects.get(pk=it.id_libro_solicitado_id)
-            titulo = f"{a.titulo} ↔ {b.titulo}"
-        except Exception:
-            pass
+        si = it.id_solicitud
+        a = getattr(it.id_libro_ofrecido_aceptado, 'titulo', None)
+        b = getattr(si.id_libro_deseado, 'titulo', None)
+        titulo = f"{a or '¿?'} ↔ {b or '¿?'}"
         history.append({
             "id": it.id_intercambio,
             "titulo": titulo,
             "estado": it.estado_intercambio,
-            "fecha": (it.fecha_intercambio or it.fecha_completado or ""),
+            "fecha": it.fecha_intercambio_pactada or it.fecha_completado,
         })
 
     user_payload = {
@@ -513,3 +571,31 @@ def update_user_avatar(request, id: int):
         return Response({"imagen_perfil": rel}, status=200)
     except Exception as e:
         return Response({"detail": f"No se pudo guardar: {e}"}, status=400)
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+def user_books_view(request, user_id: int):
+    from market.models import Libro, ImagenLibro
+
+    qs = (Libro.objects
+          .filter(id_usuario_id=user_id, disponible=True)
+          .only("id_libro", "titulo", "autor", "fecha_subida")
+          .order_by("-fecha_subida", "-id_libro"))
+
+    def _portada_abs(l):
+        rel = (ImagenLibro.objects
+               .filter(id_libro=l)
+               .order_by("-is_portada", "orden", "id_imagen")
+               .values_list("url_imagen", flat=True)
+               .first()) or ""
+        return _abs_media_url(request, rel)
+
+    out = [{
+        "id": b.id_libro,
+        "titulo": b.titulo,
+        "autor": b.autor,
+        "portada": _portada_abs(b),
+        "fecha_subida": b.fecha_subida,
+    } for b in qs]
+
+    return Response(out)

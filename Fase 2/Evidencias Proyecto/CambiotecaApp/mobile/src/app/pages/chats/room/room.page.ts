@@ -41,10 +41,14 @@ export class RoomPage implements OnInit, OnDestroy {
     if (!this.chatId) return;
 
     // stream de mensajes en tiempo real (polling)
-    this.sub = this.rt.watchConversation(this.chatId).subscribe((list: ChatMessage[]) => {
+    this.sub = this.rt.watchConversation(this.chatId).subscribe(async list => {
       this.messages.set(list);
       this.loading.set(false);
-      // aquí podrías hacer scroll al final
+      const last = list.length ? list[list.length - 1].id_mensaje : 0;
+      if (last) {
+        // no pasa el 'last' al backend, solo marca el último como visto
+        this.chat.markSeen(this.chatId, this.meId).subscribe();
+      }
     });
 
 

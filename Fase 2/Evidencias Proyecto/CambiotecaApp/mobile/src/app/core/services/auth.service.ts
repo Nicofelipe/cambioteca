@@ -19,6 +19,8 @@ export interface MeUser {
   direccion?: string;
   numeracion?: string;
   direccion_completa?: string;
+  es_admin?: boolean;           // 👈 NUEVO
+  avatar_url?: string | null;   // (lo manda tu login_view)
 }
 export type User = MeUser;
 
@@ -139,7 +141,6 @@ export class AuthService {
     return normalized;
   }
 
-
   async updateAvatar(id: number, file: File) {
     const fd = new FormData();
     fd.append('imagen_perfil', file);
@@ -158,6 +159,13 @@ export class AuthService {
     return await firstValueFrom(this.api.get<any>(`/api/users/${id}/profile/`));
   }
 
+  async getUserBooks(id: number) {                      // 👈 NUEVO
+    return await firstValueFrom(this.api.get<any[]>(`/api/users/${id}/books/`));
+  }
+
+  async getUserIntercambios(id: number) {              // 👈 NUEVO
+    return await firstValueFrom(this.api.get<any[]>(`/api/users/${id}/intercambios/`));
+  }
 
 
 }

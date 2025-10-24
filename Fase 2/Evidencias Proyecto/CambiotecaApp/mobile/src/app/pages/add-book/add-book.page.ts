@@ -15,7 +15,7 @@ import { IonicModule, LoadingController, ToastController } from '@ionic/angular'
 import { firstValueFrom } from 'rxjs';
 
 import { AuthService } from '../../core/services/auth.service';
-import { BooksService } from '../../core/services/books.service';
+import { BooksService, MyBookCard } from '../../core/services/books.service';
 import { CatalogService, Genero } from '../../core/services/catalog.service';
 
 // ===== validator ISBN (acepta 10 o 13 dígitos, ignora guiones/espacios) =====
@@ -174,14 +174,18 @@ export class AddBookPage {
       console.log('[ADD-BOOK] payload =>', payload);
 
       const created: any = await firstValueFrom(this.books.create(payload));
-      console.log('[ADD-BOOK] created <=', created);
-
       const libroId = Number(created?.id || created?.id_libro);
 
       // 2) subir imágenes (portada primero)
+      let firstImageUrl: string | undefined;
+
       if (libroId && this.files.length) {
         const portada = this.files[this.coverIndex];
-        await firstValueFrom(this.books.uploadImage(libroId, portada, { is_portada: true, orden: 1 }));
+        const portadaResp: any = await firstValueFrom(
+          this.books.uploadImage(libroId, portada, { is_portada: true, orden: 1 })
+        );
+        firstImageUrl = portadaResp?.url_abs || portadaResp?.url_imagen || undefined;
+
         const others = this.files.filter((_, idx) => idx !== this.coverIndex);
         let orden = 2;
         for (const f of others) {
@@ -190,6 +194,28 @@ export class AddBookPage {
         }
       }
 
+      // 3) emitir evento para refrescar “Mis libros”
+      const newCard: MyBookCard = {
+        id: libroId,
+        titulo: v.titulo,
+        autor: v.autor,
+        estado: v.estado,
+        descripcion: v.descripcion,
+        editorial: v.editorial,
+        genero: generoName || '',
+        genero_nombre: generoName ?? null,
+        tipo_tapa: v.tipo_tapa,
+        disponible: true,
+        fecha_subida: fechaISO,
+        first_image: firstImageUrl ?? null,
+        has_requests: false,
+        has_new_requests: false,
+        comuna_nombre: null,
+      };
+
+      this.books.emitCreated(newCard);
+
+      // (luego sigue tu flujo actual)
       await loading.dismiss();
       this.toast('¡Libro publicado!');
       this.router.navigateByUrl('/my-books', { replaceUrl: true });

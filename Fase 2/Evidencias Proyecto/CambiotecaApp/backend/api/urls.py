@@ -17,6 +17,7 @@ from core.views import (
     user_summary,
     update_user_profile,
     update_user_avatar,
+    user_books_view
 )
 
 urlpatterns = [
@@ -37,6 +38,7 @@ urlpatterns = [
     path('api/users/<int:id>/summary/', user_summary),
     path('api/users/<int:id>/', update_user_profile),
     path('api/users/<int:id>/avatar/', update_user_avatar),
+    path('api/users/<int:user_id>/books/', user_books_view),
 
     # Market (libros, my_books, etc.)
     path('api/', include('market.urls')),

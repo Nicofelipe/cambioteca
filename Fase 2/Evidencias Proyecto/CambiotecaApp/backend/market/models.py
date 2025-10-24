@@ -1,6 +1,9 @@
 #market models.py
 
 from django.db import models
+from rest_framework import serializers
+from .constants import SOLICITUD_ESTADO, INTERCAMBIO_ESTADO
+from django.utils import timezone
 
 class Genero(models.Model):
     id_genero = models.AutoField(primary_key=True)
@@ -65,6 +68,14 @@ class Calificacion(models.Model):
     )
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["id_intercambio", "id_usuario_calificador"],
+                name="uniq_calificacion_user_intercambio",
+            )
+        ]
+
+    class Meta:
         db_table = 'calificacion'
         managed = False
 
@@ -127,56 +138,7 @@ class ImagenLibro(models.Model):
     def __str__(self):
         return f"Imagen #{self.id_imagen} de Libro {self.id_libro_id}"
 
-class Intercambio(models.Model):
-    ESTADO_CHOICES = [
-        ('Pendiente', 'Pendiente'),
-        ('Aceptado', 'Aceptado'),
-        ('Rechazado', 'Rechazado'),
-        ('Completado', 'Completado'),
-    ]
 
-    id_intercambio = models.AutoField(primary_key=True)
-    lugar_intercambio = models.CharField(max_length=255)
-    fecha_intercambio = models.DateField(null=True, blank=True)
-    estado_intercambio = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='Pendiente')
-    fecha_completado = models.DateField(null=True, blank=True)
-
-    # Accesos:
-    # - usuario.intercambios_solicitados.all()
-    # - usuario.intercambios_ofrecidos.all()
-    # - libro.intercambios_donde_fue_solicitado.all()
-    # - libro.intercambios_donde_fue_ofrecido.all()
-    id_usuario_solicitante = models.ForeignKey(
-        'core.Usuario',
-        db_column='id_usuario_solicitante',
-        on_delete=models.DO_NOTHING,
-        related_name='intercambios_solicitados'
-    )
-    id_usuario_ofreciente = models.ForeignKey(
-        'core.Usuario',
-        db_column='id_usuario_ofreciente',
-        on_delete=models.DO_NOTHING,
-        related_name='intercambios_ofrecidos'
-    )
-    id_libro_solicitado = models.ForeignKey(
-        'market.Libro',
-        db_column='id_libro_solicitado',
-        on_delete=models.DO_NOTHING,
-        related_name='intercambios_donde_fue_solicitado'
-    )
-    id_libro_ofrecido = models.ForeignKey(
-        'market.Libro',
-        db_column='id_libro_ofrecido',
-        on_delete=models.DO_NOTHING,
-        related_name='intercambios_donde_fue_ofrecido'
-    )
-
-    class Meta:
-        db_table = 'intercambio'
-        managed = False
-
-    def __str__(self):
-        return f"Intercambio #{self.id_intercambio} — {self.estado_intercambio}"
 
 
 
@@ -228,8 +190,9 @@ class Conversacion(models.Model):
         'market.Intercambio', db_column='id_intercambio',
         on_delete=models.DO_NOTHING, related_name='conversaciones'
     )
-    creado_en = models.DateTimeField(db_column='creado_en', null=True, blank=True)
-    actualizado_en = models.DateTimeField(db_column='actualizado_en', auto_now=True)
+    creado_en = models.DateTimeField(default=timezone.now)
+    actualizado_en = models.DateTimeField(default=timezone.now)
+    ultimo_id_mensaje = models.IntegerField(default=0, db_column='ultimo_id_mensaje')  # <-- default 0 y sin null=True
 
     class Meta:
         db_table = 'conversacion'
@@ -237,9 +200,11 @@ class Conversacion(models.Model):
 
 
 class ConversacionParticipante(models.Model):
+    # SIN 'id' aquí
     id_conversacion = models.ForeignKey(
         'market.Conversacion', db_column='id_conversacion',
-        on_delete=models.CASCADE, related_name='participantes'
+        on_delete=models.CASCADE, related_name='participantes',
+        primary_key=True  # <-- evita que Django agregue un id auto
     )
     id_usuario = models.ForeignKey(
         'core.Usuario', db_column='id_usuario',
@@ -248,7 +213,7 @@ class ConversacionParticipante(models.Model):
     rol = models.CharField(max_length=20, null=True, blank=True)
     silenciado = models.BooleanField(default=False)
     archivado = models.BooleanField(default=False)
-    ultimo_visto_id_mensaje = models.IntegerField(null=True, blank=True)
+    ultimo_visto_id_mensaje = models.IntegerField(default=0, db_column='ultimo_visto_id_mensaje')
     visto_en = models.DateTimeField(null=True, blank=True)
 
     class Meta:
@@ -275,3 +240,84 @@ class ConversacionMensaje(models.Model):
     class Meta:
         db_table = 'conversacion_mensaje'
         managed = False
+
+
+class SolicitudIntercambio(models.Model):
+    id_solicitud = models.AutoField(primary_key=True)
+    id_usuario_solicitante = models.ForeignKey('core.Usuario', db_column='id_usuario_solicitante',
+                                               on_delete=models.DO_NOTHING, related_name='solicitudes_hechas')
+    id_usuario_receptor = models.ForeignKey('core.Usuario', db_column='id_usuario_receptor',
+                                            on_delete=models.DO_NOTHING, related_name='solicitudes_recibidas')
+    id_libro_deseado = models.ForeignKey('market.Libro', db_column='id_libro_deseado',
+                                         on_delete=models.DO_NOTHING, related_name='solicitudes_para_este_libro')
+    id_libro_ofrecido_aceptado = models.ForeignKey('market.Libro', db_column='id_libro_ofrecido_aceptado_id',
+                                                   on_delete=models.SET_NULL, null=True, blank=True,
+                                                   related_name='solicitudes_donde_fue_aceptado')
+
+    estado = models.CharField(
+        max_length=10,
+        default=SOLICITUD_ESTADO["PENDIENTE"],
+        choices=[
+            (v, v) for v in SOLICITUD_ESTADO.values()
+        ],
+    )
+    lugar_intercambio = models.CharField(max_length=255, null=True, blank=True)
+    fecha_intercambio_pactada = models.DateTimeField(null=True, blank=True)
+    fecha_completado = models.DateTimeField(null=True, blank=True)
+    creada_en = models.DateTimeField(null=True, blank=True)
+    actualizada_en = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'solicitud_intercambio'
+        managed = False
+
+
+
+class SolicitudOferta(models.Model):
+    id_oferta = models.AutoField(primary_key=True)
+    id_solicitud = models.ForeignKey(SolicitudIntercambio, db_column='id_solicitud',
+                                     on_delete=models.CASCADE, related_name='ofertas')
+    id_libro_ofrecido = models.ForeignKey('market.Libro', db_column='id_libro_ofrecido',
+                                          on_delete=models.CASCADE, related_name='ofertas_en_solicitudes')
+
+    class Meta:
+        db_table = 'solicitud_oferta'
+        managed = False
+
+class Intercambio(models.Model):
+    id_intercambio = models.AutoField(primary_key=True)
+    id_solicitud = models.ForeignKey('market.SolicitudIntercambio', db_column='id_solicitud',
+                                     on_delete=models.CASCADE, related_name='intercambio')
+    id_libro_ofrecido_aceptado = models.ForeignKey('market.Libro', db_column='id_libro_ofrecido_aceptado',
+                                                   on_delete=models.DO_NOTHING, related_name='intercambios_donde_fue_aceptado')
+    lugar_intercambio = models.CharField(max_length=255, default='A coordinar')
+    fecha_intercambio_pactada = models.DateTimeField(null=True, blank=True)
+    estado_intercambio = models.CharField(
+        max_length=12,
+        default=INTERCAMBIO_ESTADO["PENDIENTE"],
+        choices=[
+            (v, v) for v in INTERCAMBIO_ESTADO.values()
+        ],
+    )
+    fecha_completado = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'intercambio'
+        managed = False
+
+class IntercambioCodigo(models.Model):
+    # PK es id_intercambio, por eso usamos OneToOneField con primary_key=True
+    id_intercambio = models.OneToOneField('market.Intercambio', db_column='id_intercambio',
+                                          on_delete=models.CASCADE, related_name='codigo', primary_key=True)
+    codigo = models.CharField(max_length=12, unique=True)
+    expira_en = models.DateTimeField(null=True, blank=True)
+    usado_en = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'intercambio_codigo'
+        managed = False
+
+
+
+
+
