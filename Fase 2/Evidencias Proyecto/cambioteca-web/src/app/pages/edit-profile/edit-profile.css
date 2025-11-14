@@ -1,0 +1,264 @@
+/* --- Variables de Estilo (Opcional, pero recomendado) --- */
+:host {
+  --primary-color: #6a0dad; /* Púrpura principal */
+  --primary-light: rgba(106, 13, 173, 0.1); /* Púrpura claro para 'focus' */
+  --text-dark: #1f2937;
+  --text-medium: #6b7280;
+  --card-bg: #ffffff;
+  --page-bg: #f9fafb;
+  --border-color: #d1d5db;
+  --success-bg: #d1fae5;
+  --success-text: #059669;
+  --error-bg: #fee2e2;
+  --error-text: #dc2626;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Contenedor Principal --- */
+.edit-profile-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  background: var(--card-bg);
+  border-radius: 0.75rem; /* 12px */
+  box-shadow: var(--shadow-md);
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Cabeceras y Títulos --- */
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--text-medium);
+  margin-bottom: 2rem;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background-color: #e5e7eb; /* Un gris más claro */
+  margin: 2rem 0;
+}
+
+/* --- Sección de Avatar (Llamativo) --- */
+.avatar-section {
+  padding-bottom: 2rem;
+}
+.avatar-section > label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.avatar-controls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.avatar-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--card-bg);
+  box-shadow: 0 0 0 2px var(--primary-color), var(--shadow-md); /* Doble borde */
+  transition: transform 0.2s ease;
+}
+
+.avatar-preview:hover {
+  transform: scale(1.05);
+}
+
+input[type="file"] {
+  display: none; /* Ocultamos el input feo */
+}
+
+.avatar-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* --- Estructura del Formulario --- */
+.form-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Ocupa el espacio disponible */
+}
+
+.form-group label {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+/* --- Inputs Interactivos --- */
+.form-group input[type="text"],
+.form-group input[type="tel"] {
+  width: 100%;
+  padding: 0.875rem 1rem; /* 14px 16px */
+  font-size: 1rem;
+  color: var(--text-dark);
+  background-color: var(--page-bg); /* Fondo gris claro */
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem; /* 8px */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Estado Focus (Llamativo) */
+.form-group input[type="text"]:focus,
+.form-group input[type="tel"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--card-bg); /* Fondo blanco al enfocar */
+  box-shadow: 0 0 0 3px var(--primary-light); /* Halo púrpura */
+}
+
+/* --- Botones --- */
+.btn-change-photo,
+.btn-save-photo,
+.btn-save,
+.btn-cancel {
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Botón Primario (Guardar) */
+.btn-save-photo,
+.btn-save {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+}
+
+.btn-save-photo:hover,
+.btn-save:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Botón Secundario (Cambiar Foto, Cancelar) */
+.btn-change-photo,
+.btn-cancel {
+  background-color: var(--card-bg);
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+}
+
+.btn-change-photo:hover,
+.btn-cancel:hover {
+  background-color: var(--page-bg);
+  border-color: var(--text-dark);
+}
+
+/* Botones Deshabilitados */
+.btn-save-photo:disabled,
+.btn-save:disabled {
+  background-color: var(--text-medium);
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* --- Footer del Formulario --- */
+.form-footer {
+  margin-top: 2rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end; /* Alinea botones a la derecha */
+}
+
+/* --- Mensajes de Feedback --- */
+.message {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  animation: fadeIn 0.3s;
+}
+.message.success {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+.message.error {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+}
+
+/* Mensajes pequeños para el avatar */
+.small-error, .small-success {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+/* --- Responsividad (Móvil) --- */
+@media (max-width: 768px) {
+  .edit-profile-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .avatar-section {
+    align-items: center;
+  }
+  
+  .avatar-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .avatar-buttons {
+    flex-direction: row;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+  
+  .btn-save,
+  .btn-cancel {
+    width: 100%;
+  }
+}

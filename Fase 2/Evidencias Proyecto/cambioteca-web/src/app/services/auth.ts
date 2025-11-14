@@ -8,7 +8,7 @@ import { Observable, BehaviorSubject, tap } from 'rxjs';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://127.0.0.1:8000/api/auth'; // Sin / al final
+  private apiUrl = 'https://proyectocapstone-production.up.railway.app/api/auth';
   private tokenKey = 'cambioteca_token';
   private userKey = 'cambioteca_user';
 
@@ -37,6 +37,8 @@ export class AuthService {
     );
   }
 
+  
+
   saveToken(token: string): void {
     localStorage.setItem(this.tokenKey, token);
   }
@@ -60,5 +62,25 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
+  }
+  updateLocalUserAvatar(newAvatarUrl: string): void {
+    // 1. Obtiene el usuario actual del BehaviorSubject
+    const currentUser = this.currentUserSubject.getValue();
+    if (currentUser) {
+      
+      // 2. Crea un nuevo objeto de usuario con la foto actualizada
+      const updatedUser = {
+        ...currentUser,
+        avatar_url: newAvatarUrl // Actualiza la URL
+        // NOTA: Si tu objeto de usuario también guarda 'imagen_perfil' (ruta relativa),
+        // también podrías actualizarla aquí si la necesitas, pero avatar_url es la crítica.
+      };
+
+      // 3. Guarda el usuario actualizado en localStorage
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+      
+      // 4. Emite el usuario actualizado al BehaviorSubject
+      this.currentUserSubject.next(updatedUser);
+    }
   }
 }

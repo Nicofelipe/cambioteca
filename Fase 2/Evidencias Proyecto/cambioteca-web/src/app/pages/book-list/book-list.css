@@ -1,178 +1,303 @@
-/* --- HERO SECTION (BIENVENIDA Y BUSCADOR) --- */
-.hero-section {
-  background-color: #f4f5f8;
-  padding: 60px 20px;
-  text-align: center;
+/* --- Paleta de Colores y Variables --- */
+:host {
+  --primary-color: #6a0dad; /* Púrpura principal */
+  --primary-light: rgba(106, 13, 173, 0.1);
+  --accent-color: #e11d48;  /* Rosado/Rojo para el corazón */
+  --text-dark: #1f2937;
+  --text-medium: #6b7280;
+  --bg-page: #f9fafb;
+  --bg-card: #ffffff;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --transition-fast: all 0.2s ease-out;
+  --transition-medium: all 0.3s ease-out;
 }
 
-.hero-logo {
-  max-width: 150px;
-  margin-bottom: 20px;
+.catalog-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  background-color: var(--bg-page);
 }
 
-.hero-section h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #333;
+/* --- Barra de Búsqueda Profesional --- */
+.search-and-filter-bar {
+  margin-bottom: 2rem;
 }
 
-.hero-section .subtitle {
-  font-size: 1.2rem;
-  color: #555;
-  max-width: 600px;
-  margin: 10px auto 30px;
+.search-input {
+  position: relative;
 }
 
-.hero-search form {
-  display: flex;
-  max-width: 700px;
-  margin: 0 auto;
-  border-radius: 50px; /* Bordes redondeados */
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-}
-
-.hero-search input {
-  flex-grow: 1;
-  border: none;
-  padding: 18px 25px;
+.search-input input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem 1rem 1rem 3rem; /* Padding para el ícono */
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem; /* 12px */
   font-size: 1rem;
+  color: var(--text-dark);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+/* --- INTERACCIÓN: Halo de Focus --- */
+.search-input input:focus {
   outline: none;
+  border-color: var(--primary-color);
+  background-color: var(--bg-card);
+  box-shadow: 0 0 0 4px var(--primary-light); /* El "halo" púrpura */
 }
 
-.hero-search button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 30px;
-  background-color: #007bff;
-  color: white;
-  border: none;
+.search-input i.fa-magnifying-glass {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-medium);
   font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  pointer-events: none; /* Evita que el ícono bloquee el clic */
 }
 
-.hero-search button:hover {
-  background-color: #0056b3;
+/* --- Cabecera del Catálogo --- */
+.catalog-header h2 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
 }
 
-/* --- ESTILOS GENERALES Y MENSAJES --- */
-.message-container {
-  text-align: center;
-  padding: 50px 20px;
-  color: #666;
-  font-size: 1.1rem;
+/* --- Grid de Libros y Tarjeta --- */
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  /* Animación de entrada para la cuadrícula */
+  animation: gridFadeIn 0.5s ease-out;
 }
 
-.catalog-section {
-  padding: 40px 20px;
+@keyframes gridFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.catalog-section h2 {
-  text-align: center;
-  font-size: 2.2rem;
-  margin-bottom: 30px;
-}
-
-/* --- ESTILOS DE TARJETAS (CARDS) --- */
 .book-card {
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.book-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+  /* Contenedor principal que permite posicionar botones encima */
+  position: relative;
+  background: var(--bg-card);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  
+  /* --- INTERACCIÓN: "Lift" (Levantar) --- */
+  transition: var(--transition-medium);
 }
 
+.book-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-lg);
+}
+
+.book-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 12px; /* Coincide con el padre */
+  overflow: hidden; /* Clave para el zoom de imagen */
+}
+
+/* --- INTERACCIÓN: Zoom de Imagen --- */
 .book-image-placeholder {
-  height: 200px;
-  background-color: #e9ecef;
+  height: 300px;
+  background-color: var(--bg-page);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  color: #adb5bd;
-  overflow: hidden;
+  color: var(--text-medium);
+  font-weight: 600;
+  overflow: hidden; /* Clave */
 }
 
 .book-image-placeholder img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease; /* Transición suave del zoom */
 }
 
+.book-card:hover .book-image-placeholder img {
+  transform: scale(1.05); /* Efecto zoom al pasar el mouse */
+}
+
+/* --- Contenido de la Tarjeta --- */
 .book-card-content {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
+  padding: 1rem 1.25rem;
 }
 
-.book-card h3 {
-  font-size: 1.1rem;
+.book-card-content h3 {
+  font-size: 1.15rem;
   font-weight: 600;
+  color: var(--text-dark);
   margin: 0 0 5px 0;
+  /* Evita que títulos largos rompan el diseño */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.book-card .author {
-  color: #666;
+.book-card-content .author {
   font-size: 0.9rem;
+  color: var(--text-medium);
   margin: 0 0 10px 0;
-  flex-grow: 1; /* Empuja el resto hacia abajo */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.book-card .date {
-  font-size: 0.8rem;
-  color: #999;
-  margin-top: 10px;
-}
-
-/* Grilla para los resultados de búsqueda */
-.book-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 25px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* --- CHIPS (Etiquetas) --- */
 .chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  margin-bottom: 10px;
 }
+
 .chip-owner {
-  background-color: #e9ecef;
-  color: #495057;
+  background: var(--primary-light);
+  color: var(--primary-color);
   padding: 4px 10px;
-  border-radius: 16px;
+  border-radius: 12px;
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* --- SECCIÓN SOBRE NOSOTROS --- */
-.about-us-section {
+.book-card-content .date {
+  font-size: 0.8rem;
+  color: var(--text-medium);
+}
+
+/* --- INTERACCIÓN: Botón Favorito "Glass" --- */
+.favorite-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  /* Efecto "Glassmorphism" */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); /* Safari */
+  
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+
+.favorite-btn:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.9);
+}
+.favorite-btn:active {
+  transform: scale(0.95); /* Efecto "pulsación" */
+}
+
+.favorite-btn svg {
+  width: 20px;
+  height: 20px;
+  /* Corazón delineado por defecto */
+  fill: transparent;
+  stroke: var(--text-dark);
+  stroke-width: 30px; /* Grosor del borde */
+  transition: var(--transition-fast);
+}
+
+.favorite-btn.is-favorite svg {
+  /* Corazón relleno y rojo */
+  fill: var(--accent-color);
+  stroke: var(--accent-color);
+  stroke-width: 0;
+}
+
+.favorite-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Spinner (cuando está cargando) */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0,0,0,.1);
+  border-radius: 50%;
+  border-top-color: var(--primary-color);
+  animation: spin 1s ease-in-out infinite;
+}
+.favorite-btn:disabled svg {
+  display: none;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Botón de Admin --- */
+.admin-actions {
+  /* Se muestra debajo del contenido, dentro de la tarjeta */
+  padding: 0 1.25rem 1rem 1.25rem;
+}
+.btn-admin-delete {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-text);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+.btn-admin-delete:hover {
+  background-color: var(--error-text);
+  color: white;
+}
+.btn-admin-delete:disabled {
+  background-color: var(--text-medium);
+  color: white;
+  border-color: var(--text-medium);
+  cursor: not-allowed;
+}
+
+/* --- Estados de Carga / Vacío --- */
+.message-container {
   text-align: center;
-  padding: 50px 20px;
-  background-color: #fff;
-  max-width: 800px;
-  margin: 40px auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  padding: 60px 20px;
+  color: var(--text-medium);
+  font-size: 1.1rem;
+  background-color: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
 }
 
-.about-us-section h2 {
-  margin-top: 0;
+/* --- Responsividad --- */
+@media (max-width: 600px) {
+  .catalog-container {
+    padding: 1rem 0.5rem;
+  }
+  .book-grid {
+    /* Mantenemos 2 columnas en móvil pequeño si cabe */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+  .book-image-placeholder {
+    height: 220px; /* Imágenes más pequeñas en móvil */
+  }
+  .book-card-content {
+    padding: 0.75rem;
+  }
 }
