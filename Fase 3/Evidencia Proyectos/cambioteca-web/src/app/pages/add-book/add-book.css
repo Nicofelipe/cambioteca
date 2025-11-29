@@ -1,0 +1,523 @@
+/* ============================================
+   FORMULARIO AÑADIR LIBRO - Diseño Premium
+   ============================================ */
+
+.add-book-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 40px;
+  background: var(--color-background, #ffffff);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(170, 151, 151, 0.15);
+  border: 1px solid var(--color-border-light, #e0e0e0);
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.add-book-container h2 {
+  margin: 0 0 12px 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-text-default, #2c3e50);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.add-book-container h2::before {
+  content: '📚';
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin: 0 0 35px 0;
+  color: var(--color-text-medium, #555);
+  font-size: 1rem;
+  line-height: 1.6;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--color-border-light, #e0e0e0);
+}
+
+/* ============================================
+   FORMULARIO
+   ============================================ */
+
+.book-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* ============================================
+   SECCIÓN ISBN (DESTACADA)
+   ============================================ */
+
+.isbn-section {
+  background: linear-gradient(135deg, var(--color-primary-light, #f5f3f3) 0%, #ebe8e8 100%);
+  padding: 25px;
+  border-radius: 16px;
+  border: 2px solid var(--color-primary, #aa9797);
+  position: relative;
+  overflow: hidden;
+}
+
+.isbn-section::before {
+  content: '✨';
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 2rem;
+  opacity: 0.3;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: scale(1.2) rotate(10deg);
+    opacity: 0.6;
+  }
+}
+
+.isbn-section label {
+  font-weight: 700;
+  color: var(--color-primary, #aa9797);
+  margin-bottom: 12px;
+  display: block;
+  font-size: 1rem;
+}
+
+.isbn-section .hint {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-text-light, #95a5a6);
+  font-size: 0.85rem;
+}
+
+.isbn-wrapper {
+  display: flex;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.isbn-wrapper input {
+  flex: 1;
+}
+
+.btn-search {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--color-primary, #aa9797) 0%, var(--color-primary-hover, #9a8787) 100%);
+  color: var(--color-primary-contrast, #ffffff);
+  border: none;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(170, 151, 151, 0.3);
+  white-space: nowrap;
+}
+
+.btn-search:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(170, 151, 151, 0.4);
+}
+
+.btn-search:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-search i {
+  font-size: 1rem;
+}
+
+/* ============================================
+   GRUPOS DE FORMULARIO
+   ============================================ */
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group.full-width,
+.form-group.full-width-mobile {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--color-text-default, #2c3e50);
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group label::before {
+  content: '•';
+  color: var(--color-primary, #aa9797);
+  font-size: 1.2rem;
+}
+
+/* ============================================
+   INPUTS, TEXTAREAS, SELECTS
+   ============================================ */
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: 14px 18px;
+  border: 2px solid var(--color-border-light, #e0e0e0);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  background: var(--color-background, #ffffff);
+  color: var(--color-text-default, #2c3e50);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary, #aa9797);
+  box-shadow: 0 0 0 4px rgba(170, 151, 151, 0.15);
+  background: var(--color-primary-light, #f5f3f3);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--color-text-light, #95a5a6);
+  font-style: italic;
+}
+
+/* Select con flecha personalizada */
+.form-group select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23aa9797' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 20px;
+  padding-right: 50px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   INPUT DE ARCHIVOS
+   ============================================ */
+
+.file-input {
+  padding: 20px;
+  border: 2px dashed var(--color-primary, #aa9797);
+  border-radius: 12px;
+  background: var(--color-primary-light, #f5f3f3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.file-input:hover {
+  border-color: var(--color-primary-hover, #9a8787);
+  background: #ebe6e6;
+}
+
+.file-input::file-selector-button {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--color-primary, #aa9797) 0%, var(--color-primary-hover, #9a8787) 100%);
+  color: var(--color-primary-contrast, #ffffff);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 12px;
+  transition: all 0.3s ease;
+}
+
+.file-input::file-selector-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(170, 151, 151, 0.3);
+}
+
+.form-group small {
+  color: var(--color-text-light, #95a5a6);
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+/* ============================================
+   PREVISUALIZACIONES DE IMÁGENES
+   ============================================ */
+
+.image-previews-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.preview-item {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid var(--color-border-light, #e0e0e0);
+  transition: all 0.3s ease;
+  background: var(--color-panel-bg, #f8f9fa);
+}
+
+.preview-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(170, 151, 151, 0.3);
+  border-color: var(--color-primary, #aa9797);
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-item.is-cover {
+  border-color: var(--color-primary, #aa9797);
+  border-width: 4px;
+  box-shadow: 0 8px 30px rgba(170, 151, 151, 0.4);
+}
+
+.preview-item.is-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(170, 151, 151, 0.2) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.cover-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+  color: #ffffff;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.preview-item:hover .cover-badge {
+  background: linear-gradient(180deg, transparent 0%, rgba(170, 151, 151, 0.95) 100%);
+}
+
+.preview-item.is-cover .cover-badge {
+  background: linear-gradient(180deg, transparent 0%, var(--color-primary, #aa9797) 100%);
+}
+
+.preview-item.is-cover .cover-badge::before {
+  content: '⭐ ';
+}
+
+/* ============================================
+   PIE DEL FORMULARIO
+   ============================================ */
+
+.form-footer {
+  margin-top: 20px;
+  padding-top: 25px;
+  border-top: 2px solid var(--color-border-light, #e0e0e0);
+  display: flex;
+  justify-content: center;
+}
+
+.btn-submit {
+  padding: 16px 48px;
+  background: linear-gradient(135deg, var(--color-primary, #aa9797) 0%, var(--color-primary-hover, #9a8787) 100%);
+  color: var(--color-primary-contrast, #ffffff);
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 25px rgba(170, 151, 151, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 35px rgba(170, 151, 151, 0.45);
+}
+
+.btn-submit:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-submit:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   ESTADOS DE VALIDACIÓN
+   ============================================ */
+
+.form-group input.ng-invalid.ng-touched,
+.form-group textarea.ng-invalid.ng-touched,
+.form-group select.ng-invalid.ng-touched {
+  border-color: var(--color-error, #dc3545);
+  background: #fef2f2;
+}
+
+.form-group input.ng-valid.ng-touched,
+.form-group textarea.ng-valid.ng-touched,
+.form-group select.ng-valid.ng-touched {
+  border-color: var(--color-success, #10b981);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .add-book-container {
+    margin: 20px;
+    padding: 25px 20px;
+  }
+
+  .add-book-container h2 {
+    font-size: 1.8rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .isbn-wrapper {
+    flex-direction: column;
+  }
+
+  .btn-search {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .image-previews-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px 24px;
+    font-size: 1rem;
+  }
+
+  .isbn-section {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-book-container {
+    margin: 10px;
+    padding: 20px 15px;
+    border-radius: 16px;
+  }
+
+  .add-book-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    padding: 12px 14px;
+    font-size: 0.95rem;
+  }
+
+  .image-previews-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+.form-group input:focus-visible,
+.form-group textarea:focus-visible,
+.form-group select:focus-visible,
+.btn-submit:focus-visible,
+.btn-search:focus-visible {
+  outline: 3px solid var(--color-primary, #aa9797);
+  outline-offset: 3px;
+}
+
+/* Reducir animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

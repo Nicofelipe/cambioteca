@@ -1,0 +1,153 @@
+<div class="register-container">
+
+  <h2>Crear una cuenta nueva</h2>
+
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    
+    <div class="form-group">
+      <label for="rut">RUT:</label>
+      <input type="text" id="rut" formControlName="rut" 
+             placeholder="Ej: 12345678-9"
+             [class.input-error]="isFieldInvalid('rut')">
+      <span class="error-message" *ngIf="isFieldInvalid('rut')">
+        {{ getErrorMessage('rut') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="nombres">Nombres:</label>
+      <input type="text" id="nombres" formControlName="nombres"
+             [class.input-error]="isFieldInvalid('nombres')">
+      <span class="error-message" *ngIf="isFieldInvalid('nombres')">
+        {{ getErrorMessage('nombres') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="apellido_paterno">Apellido Paterno:</label>
+      <input type="text" id="apellido_paterno" formControlName="apellido_paterno"
+             [class.input-error]="isFieldInvalid('apellido_paterno')">
+      <span class="error-message" *ngIf="isFieldInvalid('apellido_paterno')">
+        {{ getErrorMessage('apellido_paterno') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="apellido_materno">Apellido Materno:</label>
+      <input type="text" id="apellido_materno" formControlName="apellido_materno"
+             [class.input-error]="isFieldInvalid('apellido_materno')">
+      <span class="error-message" *ngIf="isFieldInvalid('apellido_materno')">
+        {{ getErrorMessage('apellido_materno') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="nombre_usuario">Nombre de Usuario:</label>
+      <input type="text" id="nombre_usuario" formControlName="nombre_usuario"
+             [class.input-error]="isFieldInvalid('nombre_usuario')">
+      <span class="error-message" *ngIf="isFieldInvalid('nombre_usuario')">
+        {{ getErrorMessage('nombre_usuario') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" id="email" formControlName="email"
+             [class.input-error]="isFieldInvalid('email')">
+      <span class="error-message" *ngIf="isFieldInvalid('email')">
+        {{ getErrorMessage('email') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="imagen_perfil">Imagen de Perfil (opcional):</label>
+      <input type="file" id="imagen_perfil" accept="image/*" (change)="onFileSelected($event)">
+    </div>
+
+    <div class="form-group">
+      <label for="telefono">Teléfono:</label>
+      <input type="tel" id="telefono" formControlName="telefono"
+             placeholder="912345678"
+             [class.input-error]="isFieldInvalid('telefono')">
+      <span class="error-message" *ngIf="isFieldInvalid('telefono')">
+        {{ getErrorMessage('telefono') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="direccion">Dirección:</label>
+      <input type="text" id="direccion" formControlName="direccion"
+             [class.input-error]="isFieldInvalid('direccion')">
+      <span class="error-message" *ngIf="isFieldInvalid('direccion')">
+        {{ getErrorMessage('direccion') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="numeracion">Numeración:</label>
+      <input type="text" id="numeracion" formControlName="numeracion"
+             [class.input-error]="isFieldInvalid('numeracion')">
+      <span class="error-message" *ngIf="isFieldInvalid('numeracion')">
+        {{ getErrorMessage('numeracion') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="region">Región:</label>
+      <select id="region" formControlName="region" (change)="onRegionChange()"
+              [class.input-error]="isFieldInvalid('region')">
+        <option [ngValue]="null" disabled>Selecciona una región...</option>
+        <option *ngFor="let region of regiones" [value]="region.id_region">{{ region.nombre }}</option>
+      </select>
+      <span class="error-message" *ngIf="isFieldInvalid('region')">
+        {{ getErrorMessage('region') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="comuna">Comuna:</label>
+      <select id="comuna" formControlName="comuna" 
+              [class.input-error]="isFieldInvalid('comuna')">
+        <option [ngValue]="null" disabled>Selecciona una comuna...</option>
+        <option *ngFor="let comuna of comunas" [value]="comuna.id_comuna">{{ comuna.nombre }}</option>
+      </select>
+      <span class="error-message" *ngIf="isFieldInvalid('comuna')">
+        {{ getErrorMessage('comuna') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="contrasena">Contraseña:</label>
+      <input type="password" id="contrasena" formControlName="contrasena"
+             [class.input-error]="isFieldInvalid('contrasena')">
+      <span class="error-message" *ngIf="isFieldInvalid('contrasena')">
+        {{ getErrorMessage('contrasena') }}
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label for="password2">Confirmar Contraseña:</label>
+      <input type="password" id="password2" formControlName="password2"
+             [class.input-error]="isFieldInvalid('password2')">
+      <span class="error-message" *ngIf="isFieldInvalid('password2')">
+        {{ getErrorMessage('password2') }}
+      </span>
+    </div>
+
+    <button type="submit" [disabled]="isLoading" [class.disabled-btn]="isLoading">
+      {{ isLoading ? 'Registrando...' : 'Registrarme' }}
+    </button>
+  </form>
+
+  <div class="toast-notification" 
+       [class.show]="toastMessage" 
+       [class.error]="toastType === 'error'" 
+       [class.success]="toastType === 'success'">
+    <div class="toast-icon">
+      <span *ngIf="toastType === 'success'">✔</span>
+      <span *ngIf="toastType === 'error'">✖</span>
+    </div>
+    <div class="toast-text">{{ toastMessage }}</div>
+  </div>
+
+</div>

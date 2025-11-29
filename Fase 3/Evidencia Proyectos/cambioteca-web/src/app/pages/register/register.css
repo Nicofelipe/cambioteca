@@ -1,0 +1,508 @@
+/* ============================================
+   REGISTRO - Diseño Espectacular
+   Formulario Completo + Animaciones WOW
+   ============================================ */
+
+:host {
+  --color-primary: #aa9797;
+  --color-primary-hover: #9a8787;
+  --color-primary-light: #f5f3f3;
+  --color-primary-darker: #8a7777;
+  --color-primary-glow: rgba(170, 151, 151, 0.6);
+  --color-primary-contrast: #ffffff;
+  --color-background: #ffffff;
+  --color-panel-bg: #f8f9fa;
+  --color-text-default: #2c3e50;
+  --color-text-medium: #555;
+  --color-text-light: #95a5a6;
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-error: #ef4444;
+  --color-error-light: #fee2e2;
+  --color-border-light: #e5e7eb;
+  --gradient-primary: linear-gradient(135deg, #aa9797 0%, #8a7777 50%, #aa9797 100%);
+  --gradient-shine: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 15px 40px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 30px var(--color-primary-glow);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+
+.register-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 50px 45px;
+  background: var(--color-background);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-border-light);
+  position: relative;
+  animation: containerEntry 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+@keyframes containerEntry {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Borde superior decorativo */
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+  background-size: 200% 200%;
+  animation: gradientMove 4s ease infinite;
+}
+
+@keyframes gradientMove {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Título */
+.register-container h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-text-default);
+  margin: 0 0 35px 0;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+/* ============================================
+   FORMULARIO
+   ============================================ */
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ============================================
+   GRUPOS DE CAMPOS
+   ============================================ */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  animation: fieldEntry 0.5s ease backwards;
+}
+
+/* Animación escalonada para cada campo */
+.form-group:nth-child(1) { animation-delay: 0.05s; }
+.form-group:nth-child(2) { animation-delay: 0.08s; }
+.form-group:nth-child(3) { animation-delay: 0.11s; }
+.form-group:nth-child(4) { animation-delay: 0.14s; }
+.form-group:nth-child(5) { animation-delay: 0.17s; }
+.form-group:nth-child(6) { animation-delay: 0.2s; }
+.form-group:nth-child(7) { animation-delay: 0.23s; }
+.form-group:nth-child(8) { animation-delay: 0.26s; }
+.form-group:nth-child(9) { animation-delay: 0.29s; }
+.form-group:nth-child(10) { animation-delay: 0.32s; }
+.form-group:nth-child(11) { animation-delay: 0.35s; }
+.form-group:nth-child(12) { animation-delay: 0.38s; }
+.form-group:nth-child(13) { animation-delay: 0.41s; }
+.form-group:nth-child(14) { animation-delay: 0.44s; }
+
+@keyframes fieldEntry {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--color-text-default);
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+}
+
+.form-group:focus-within label {
+  color: var(--color-primary);
+}
+
+/* ============================================
+   INPUTS Y SELECTS
+   ============================================ */
+
+.form-group input,
+.form-group select {
+  padding: 14px 16px;
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--color-text-default);
+  background: var(--color-background);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group input:hover,
+.form-group select:hover {
+  border-color: var(--color-primary-light);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(170, 151, 151, 0.15);
+}
+
+.form-group input::placeholder {
+  color: var(--color-text-light);
+}
+
+.form-group select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23aa9797'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
+  padding-right: 40px;
+}
+
+.form-group select:disabled {
+  background-color: var(--color-panel-bg);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================
+   INPUT DE ARCHIVO
+   ============================================ */
+
+.form-group input[type="file"] {
+  padding: 16px;
+  border: 2px dashed var(--color-border-light);
+  border-radius: var(--radius-md);
+  background: var(--color-panel-bg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-group input[type="file"]:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.form-group input[type="file"]:focus {
+  box-shadow: 0 0 0 4px rgba(170, 151, 151, 0.15);
+}
+
+/* ============================================
+   BOTÓN DE ENVÍO
+   ============================================ */
+
+button[type="submit"] {
+  padding: 16px 32px;
+  background: var(--gradient-primary);
+  background-size: 200% 200%;
+  animation: gradientMove 4s ease infinite;
+  color: var(--color-primary-contrast);
+  border: none;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px var(--color-primary-glow);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+button[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-shine);
+  transition: left 0.5s;
+}
+
+button[type="submit"]:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 10px 30px var(--color-primary-glow),
+    0 0 20px var(--color-primary-glow);
+}
+
+button[type="submit"]:active:not(:disabled) {
+  transform: translateY(-2px) scale(1);
+}
+
+button[type="submit"]:disabled,
+button[type="submit"].disabled-btn {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 12px rgba(170, 151, 151, 0.3);
+}
+
+/* ============================================
+   TOAST NOTIFICATION
+   ============================================ */
+
+.toast-notification {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 16px 24px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 1000;
+  min-width: 280px;
+  max-width: 90%;
+}
+
+.toast-notification.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.toast-notification.success {
+  background: var(--color-success-light);
+  border: 1px solid #6ee7b7;
+  color: #065f46;
+}
+
+.toast-notification.error {
+  background: var(--color-error-light);
+  border: 1px solid #fca5a5;
+  color: var(--color-error);
+  animation: toastShake 0.5s ease;
+}
+
+@keyframes toastShake {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  20% { transform: translateX(calc(-50% - 8px)) translateY(0); }
+  40% { transform: translateX(calc(-50% + 8px)) translateY(0); }
+  60% { transform: translateX(calc(-50% - 8px)) translateY(0); }
+  80% { transform: translateX(calc(-50% + 8px)) translateY(0); }
+}
+
+.toast-icon {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-notification.success .toast-icon {
+  color: var(--color-success);
+}
+
+.toast-notification.error .toast-icon {
+  color: var(--color-error);
+}
+
+.toast-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .register-container {
+    margin: 30px 20px;
+    padding: 35px 25px;
+  }
+
+  .register-container h2 {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-container {
+    margin: 20px 15px;
+    padding: 30px 20px;
+  }
+
+  .register-container h2 {
+    font-size: 1.4rem;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 12px 14px;
+  }
+
+  button[type="submit"] {
+    padding: 14px 28px;
+    font-size: 1rem;
+  }
+
+  .toast-notification {
+    min-width: auto;
+    padding: 14px 18px;
+    bottom: 20px;
+  }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+button[type="submit"]:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* Reducir animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   MEJORAS VISUALES ADICIONALES
+   ============================================ */
+
+/* Separador visual para secciones (opcional) */
+.form-group:nth-child(7),
+.form-group:nth-child(11),
+.form-group:nth-child(13) {
+  margin-top: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+/* Indicador de campo requerido */
+.form-group label::after {
+  content: ' *';
+  color: var(--color-error);
+  font-weight: 400;
+}
+
+/* Campo opcional sin asterisco */
+.form-group:nth-child(7) label::after {
+  content: '';
+}
+
+/* Hover en todo el form-group */
+.form-group {
+  padding: 12px 15px;
+  margin: 0 -15px;
+  border-radius: var(--radius-sm);
+  transition: background 0.3s ease;
+}
+
+.form-group:hover {
+  background: rgba(170, 151, 151, 0.03);
+}
+
+.form-group:focus-within {
+  background: rgba(170, 151, 151, 0.06);
+}
+
+/* Agrega estos estilos a tu register.css existente */
+
+/* Estilo para campos con error */
+.input-error {
+  border: 2px solid #dc3545 !important;
+  background-color: #fff5f5;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+  outline: none;
+}
+
+/* Mensaje de error debajo del campo */
+.error-message {
+  display: block;
+  color: #dc3545;
+  font-size: 0.85rem;
+  margin-top: 4px;
+  padding-left: 2px;
+}
+
+/* Animación para el mensaje de error */
+.error-message {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo para campos válidos (opcional) */
+input:not(.input-error):not(:placeholder-shown):valid,
+select:not(.input-error):valid {
+  border: 2px solid #28a745;
+}
+
+/* Ajustes generales para inputs y selects */
+.form-group input,
+.form-group select {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}

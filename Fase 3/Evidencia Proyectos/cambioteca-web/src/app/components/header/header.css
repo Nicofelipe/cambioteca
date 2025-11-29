@@ -1,0 +1,555 @@
+/* ============================================
+   HEADER - Diseño Premium con Responsive
+   ============================================ */
+
+.main-header {
+  background-color: var(--color-background, #ffffff);
+  box-shadow: 0 2px 20px rgba(170, 151, 151, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0 20px;
+  border-bottom: 3px solid var(--color-primary, #aa9797);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  gap: 20px;
+}
+
+/* ============================================
+   LOGO
+   ============================================ */
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--color-text-default, #2c3e50);
+  font-weight: 700;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.logo img {
+  height: 45px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  color: var(--color-primary, #aa9797);
+}
+
+.logo:hover img {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+/* ============================================
+   NAVEGACIÓN PRINCIPAL (DESKTOP)
+   ============================================ */
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.desktop-nav {
+  display: flex;
+}
+
+.nav-link {
+  padding: 10px 18px;
+  text-decoration: none;
+  color: var(--color-text-medium, #555);
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary, #aa9797);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover {
+  color: var(--color-primary, #aa9797);
+  background-color: var(--color-primary-light, #f5f3f3);
+}
+
+.nav-link:hover::after {
+  width: 60%;
+}
+
+/* ============================================
+   DROPDOWN DE PROPUESTAS
+   ============================================ */
+
+.nav-dropdown-container {
+  position: relative;
+}
+
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chevron {
+  width: 10px;
+  height: 10px;
+  transition: transform 0.3s ease;
+}
+
+.chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.dropdown-content {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-background, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--color-border-light, #e0e0e0);
+  min-width: 200px;
+  padding: 10px 0;
+  z-index: 1001;
+  animation: dropdownFade 0.25s ease;
+}
+
+.dropdown-content::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: var(--color-background, #ffffff);
+  border-left: 1px solid var(--color-border-light, #e0e0e0);
+  border-top: 1px solid var(--color-border-light, #e0e0e0);
+}
+
+@keyframes dropdownFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.dropdown-content a,
+.dropdown-content button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  text-decoration: none;
+  color: var(--color-text-medium, #555);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdown-content a:hover,
+.dropdown-content button:hover {
+  background-color: var(--color-primary-light, #f5f3f3);
+  color: var(--color-primary, #aa9797);
+  padding-left: 22px;
+}
+
+.dropdown-content i {
+  width: 18px;
+  text-align: center;
+  color: var(--color-text-light, #95a5a6);
+  font-size: 0.95rem;
+}
+
+.dropdown-content a:hover i,
+.dropdown-content button:hover i {
+  color: var(--color-primary, #aa9797);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: var(--color-border-light, #e0e0e0);
+  margin: 8px 12px;
+}
+
+.dropdown-logout {
+  color: var(--color-error, #dc3545) !important;
+}
+
+.dropdown-logout:hover {
+  background-color: #fef2f2 !important;
+  color: #c0392b !important;
+}
+
+.dropdown-logout i {
+  color: var(--color-error, #dc3545) !important;
+}
+
+/* Labels para secciones móviles */
+.dropdown-label {
+  padding: 8px 18px 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-light, #95a5a6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Sección móvil oculta por defecto */
+.mobile-only-links {
+  display: none;
+}
+
+/* ============================================
+   MENÚ DE USUARIO
+   ============================================ */
+
+.user-menu {
+  position: relative;
+}
+
+.user-greeting-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, var(--color-primary-light, #f5f3f3) 0%, #ebe6e6 100%);
+  border: 2px solid transparent;
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text-default, #2c3e50);
+  transition: all 0.3s ease;
+}
+
+.user-greeting-button:hover {
+  background: linear-gradient(135deg, var(--color-primary, #aa9797) 0%, var(--color-primary-hover, #9a8787) 100%);
+  color: var(--color-primary-contrast, #ffffff);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(170, 151, 151, 0.3);
+}
+
+.user-menu .dropdown-content {
+  right: 0;
+  left: auto;
+  transform: none;
+}
+
+.user-menu .dropdown-content::before {
+  left: auto;
+  right: 20px;
+  transform: rotate(45deg);
+}
+
+/* ============================================
+   MODO ADMIN
+   ============================================ */
+
+.main-nav.admin-mode {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Botón Panel Admin */
+.main-nav.admin-mode .active-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--color-primary, #aa9797) 0%, var(--color-primary-hover, #9a8787) 100%);
+  color: var(--color-primary-contrast, #ffffff) !important;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 4px 15px rgba(170, 151, 151, 0.35);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-nav.admin-mode .active-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.main-nav.admin-mode .active-link:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(170, 151, 151, 0.45);
+}
+
+.main-nav.admin-mode .active-link:hover::before {
+  left: 100%;
+}
+
+.main-nav.admin-mode .active-link i {
+  font-size: 1.1rem;
+}
+
+/* Badge del Admin */
+.admin-greeting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, var(--color-primary-light, #f5f3f3) 0%, #ebe6e6 100%);
+  color: var(--color-primary-hover, #9a8787);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 25px;
+  border: 2px solid var(--color-primary, #aa9797);
+}
+
+.admin-greeting i {
+  color: var(--color-primary, #aa9797);
+  font-size: 0.9rem;
+  animation: crownBounce 2s ease-in-out infinite;
+}
+
+@keyframes crownBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Botón de Salir Admin */
+.main-nav.admin-mode .btn-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background-color: #fef2f2;
+  color: var(--color-error, #dc3545) !important;
+  border: 2px solid #fecaca;
+  border-radius: 50%;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.main-nav.admin-mode .btn-logout:hover {
+  background-color: var(--color-error, #dc3545);
+  color: #ffffff !important;
+  border-color: var(--color-error, #dc3545);
+  transform: translateY(-2px) rotate(10deg);
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.main-nav.admin-mode .btn-logout i {
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   NAVEGACIÓN INVITADO
+   ============================================ */
+
+.guest-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-link {
+  display: none;
+}
+
+.btn-register {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--color-primary, #aa9797) 0%, var(--color-primary-hover, #9a8787) 100%);
+  color: var(--color-primary-contrast, #ffffff) !important;
+  text-decoration: none;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(170, 151, 151, 0.3);
+}
+
+.btn-register:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(170, 151, 151, 0.4);
+}
+
+/* ============================================
+   RESPONSIVE - MÓVIL
+   ============================================ */
+
+@media (max-width: 992px) {
+  .header-content {
+    height: auto;
+    padding: 15px 0;
+  }
+
+  /* Ocultar navegación desktop en móvil */
+  .desktop-nav {
+    display: none !important;
+  }
+
+  /* Mostrar enlaces móviles dentro del dropdown de usuario */
+  .mobile-only-links {
+    display: block;
+  }
+
+  /* Ajustar dropdown de usuario para móvil */
+  .user-menu .dropdown-content {
+    position: fixed;
+    top: 70px;
+    right: 10px;
+    left: 10px;
+    max-width: 100%;
+    max-height: calc(100vh - 90px);
+    overflow-y: auto;
+    transform: none;
+  }
+
+  .user-menu .dropdown-content::before {
+    display: none;
+  }
+
+  /* Ajustar modo admin para móvil */
+  .main-nav.admin-mode {
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .main-nav.admin-mode .active-link,
+  .admin-greeting {
+    font-size: 0.85rem;
+    padding: 8px 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .logo span {
+    display: none;
+  }
+
+  .logo img {
+    height: 40px;
+  }
+
+  .home-link {
+    display: block;
+  }
+
+  .user-greeting-button {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .user-name-text {
+    display: none;
+  }
+
+  .user-greeting-button::before {
+    content: '☰';
+    font-size: 1.2rem;
+    margin-right: 5px;
+  }
+
+  .guest-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .admin-greeting {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-header {
+    padding: 0 10px;
+  }
+
+  .guest-nav {
+    gap: 4px;
+  }
+
+  .nav-link {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .btn-register {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+  }
+
+  .dropdown-content a,
+  .dropdown-content button {
+    padding: 10px 14px;
+  }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+.nav-link:focus-visible,
+.user-greeting-button:focus-visible,
+.btn-register:focus-visible,
+.manage-card:focus-visible {
+  outline: 3px solid var(--color-primary, #aa9797);
+  outline-offset: 3px;
+}
+
+/* Reducir animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

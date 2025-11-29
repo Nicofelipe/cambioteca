@@ -1,0 +1,15 @@
+<app-header></app-header>
+
+<main>
+  <router-outlet></router-outlet>
+</main>
+
+<app-footer></app-footer>
+
+<button 
+  class="scroll-top-btn" 
+  [class.show]="showScrollButton" 
+  (click)="scrollToTop()" 
+  title="Volver arriba">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>

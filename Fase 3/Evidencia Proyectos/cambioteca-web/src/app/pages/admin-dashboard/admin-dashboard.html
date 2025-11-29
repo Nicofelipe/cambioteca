@@ -1,0 +1,232 @@
+<div class="admin-dashboard-container">
+  
+  <header class="admin-header">
+    <div class="header-text">
+      <h1>Panel de Control</h1>
+      <p class="subtitle">Visión general del ecosistema Cambioteca</p>
+    </div>
+    
+    <div class="header-actions">
+      <div class="last-update">
+        Actualizado: {{ currentDate | date:'mediumTime' }}
+      </div>
+      
+      <button class="btn-refresh" (click)="refreshData()" [disabled]="isRefreshing || isLoading">
+        <i class="fa-solid fa-rotate-right" [class.fa-spin]="isRefreshing"></i> 
+        {{ isRefreshing ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+    </div>
+  </header>
+  
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando datos...</p>
+  </div>
+
+  <div *ngIf="error" class="message error">
+    <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}
+  </div>
+  
+  <div *ngIf="!isLoading && summaryData" class="dashboard-content">
+    
+    <section class="management-section">
+      <a routerLink="/admin/users" class="manage-card users">
+        <div class="icon-wrapper"><i class="fa-solid fa-users"></i></div>
+        <div class="card-info">
+          <h3>Usuarios</h3>
+          <span>Gestionar y moderar</span>
+        </div>
+        <i class="fa-solid fa-chevron-right arrow"></i>
+      </a>
+
+      <a routerLink="/admin/books" class="manage-card books">
+        <div class="icon-wrapper"><i class="fa-solid fa-book"></i></div>
+        <div class="card-info">
+          <h3>Libros</h3>
+          <span>Catálogo y bajas</span>
+        </div>
+        <i class="fa-solid fa-chevron-right arrow"></i>
+      </a>
+
+      <a routerLink="/admin/reports" class="manage-card reports">
+        <div class="icon-wrapper"><i class="fa-solid fa-flag"></i></div>
+        <div class="card-info">
+          <h3>Reportes</h3>
+          <span>Denuncias pendientes</span>
+        </div>
+        <i class="fa-solid fa-chevron-right arrow"></i>
+      </a>
+
+      <a href="https://proyectocapstone-production.up.railway.app/admin/" target="_blank" class="manage-card django">
+        <div class="icon-wrapper"><i class="fa-solid fa-database"></i></div>
+        <div class="card-info">
+          <h3>Django Admin</h3>
+          <span>Base de datos</span>
+        </div>
+        <i class="fa-solid fa-external-link-alt arrow"></i>
+      </a>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Usuarios Totales</span>
+          <i class="fa-solid fa-user-group icon-bg"></i>
+        </div>
+        <div class="stat-number">{{ summaryData.total_users }}</div>
+        <div class="stat-trend positive">
+          <i class="fa-solid fa-arrow-trend-up"></i> +{{ summaryData.new_users_last_7_days }} esta semana
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-top">
+          <span class="stat-label">Libros Publicados</span>
+          <i class="fa-solid fa-book-open icon-bg"></i>
+        </div>
+        <div class="stat-number">{{ summaryData.total_books }}</div>
+        <div class="stat-trend neutral">
+          {{ summaryData.books_stats?.available }} disponibles ahora
+        </div>
+      </div>
+
+      <div class="stat-card highlight-success">
+        <div class="stat-top">
+          <span class="stat-label">Intercambios Listos</span>
+          <i class="fa-solid fa-handshake icon-bg"></i>
+        </div>
+        <div class="stat-number">{{ summaryData.completed_exchanges }}</div>
+        <div class="stat-trend positive">
+          Completados con éxito
+        </div>
+      </div>
+
+      <div class="stat-card highlight-info">
+        <div class="stat-top">
+          <span class="stat-label">En Negociación</span>
+          <i class="fa-solid fa-comments icon-bg"></i>
+        </div>
+        <div class="stat-number">{{ summaryData.in_progress_exchanges }}</div>
+        <div class="stat-trend neutral">
+          Activos ahora
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-grid">
+      
+      <div class="chart-card full-width">
+        <div class="card-header">
+          <h3>📊 Evolución de Actividad</h3>
+          <span class="period-badge">Últimos 30 días</span>
+        </div>
+        <div class="chart-wrapper">
+          <ngx-charts-line-chart
+            [scheme]="colorSchemeLines"
+            [results]="chartHistory"
+            [gradient]="true"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="true"
+            legendTitle="Categoría"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            xAxisLabel="Fecha (Día)"
+            yAxisLabel="Cantidad"
+            [autoScale]="true">
+          </ngx-charts-line-chart>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>📚 Distribución por Género</h3>
+        </div>
+        <div class="chart-wrapper">
+          <ngx-charts-pie-chart
+            [scheme]="colorScheme"
+            [results]="chartGenres"
+            [legend]="true"
+            legendTitle="Géneros"
+            [labels]="false"
+            [doughnut]="true"
+            [arcWidth]="0.5">
+          </ngx-charts-pie-chart>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>🏆 Usuarios Más Activos</h3>
+        </div>
+        <div class="chart-wrapper-bar">
+          <ngx-charts-bar-horizontal
+            [scheme]="colorScheme"
+            [results]="chartTopUsers"
+            [xAxis]="true"
+            [yAxis]="true"
+            [legend]="false"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            xAxisLabel="Intercambios Completados"
+            yAxisLabel="Usuario"
+            [showDataLabel]="true">
+          </ngx-charts-bar-horizontal>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="leaderboards-grid">
+      
+      <div class="leader-card">
+        <div class="leader-header">
+          <h3>⭐ Mejor Reputación</h3>
+        </div>
+        <ul class="leader-list">
+          <li *ngFor="let u of $any(summaryData.top_rated_users); let i = index">
+            <div class="rank" [class.top-1]="i===0">{{ i + 1 }}</div>
+            <div class="user-info">
+              <strong>{{ u.nombre_usuario }}</strong>
+              <small>{{ u.total }} calificaciones</small>
+            </div>
+            <div class="score value-highlight">{{ u.promedio | number:'1.1-1' }}</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="leader-card">
+        <div class="leader-header">
+          <h3>📖 Mayores Donantes</h3>
+        </div>
+        <ul class="leader-list">
+          <li *ngFor="let u of $any(summaryData.top_publishers); let i = index">
+            <div class="rank" [class.top-1]="i===0">{{ i + 1 }}</div>
+            <div class="user-info">
+              <strong>{{ u.nombre_usuario }}</strong>
+              <small>Libros subidos</small>
+            </div>
+            <div class="score">{{ u.books_count }}</div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="leader-card">
+        <div class="leader-header">
+          <h3>🌎 Usuarios por Región</h3>
+        </div>
+        <ul class="leader-list">
+          <li *ngFor="let r of $any(summaryData.users_by_region) | slice:0:5; let i = index">
+            <div class="rank region-rank">{{ i + 1 }}</div>
+            <div class="user-info">
+              <strong>{{ $any(r).comuna__id_region__nombre }}</strong>
+            </div>
+            <div class="score">{{ $any(r).total }}</div>
+          </li>
+        </ul>
+      </div>
+
+    </section>
+
+  </div>
+</div>

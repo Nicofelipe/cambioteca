@@ -1,0 +1,353 @@
+/* ---
+  ESTILOS PARA UN PERFIL PÚBLICO PROFESIONAL
+  (Paleta de colores limpia: Azul, Gris y Blanco)
+--- */
+
+/* --- Variables de Color (Profesional) --- */
+:host {
+  --color-primary: #007bff; /* Azul profesional */
+  --color-primary-hover: #0056b3;
+  --color-primary-light: #e7f3ff; /* Fondo azul muy claro */
+  
+  --color-background: #f8f9fa; /* Fondo de página gris claro */
+  --color-card-bg: #ffffff;
+  
+  --color-text-dark: #212529;
+  --color-text-medium: #555;
+  --color-text-light: #6c757d;
+  
+  --color-success: #28a745;
+  --color-success-bg: #eaf6ec;
+  --color-warning: #ffc107;
+  --color-warning-bg: #fff9e6;
+  
+  --color-border: #dee2e6; /* Borde estándar */
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.07);
+  --border-radius-md: 12px;
+  --transition-fast: all 0.2s ease-out;
+}
+
+/* --- Contenedor Principal --- */
+.profile-container {
+  max-width: 900px; /* Ancho de contenido centrado */
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  background-color: var(--color-background);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+}
+
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* Espacio entre la tarjeta principal y la sección de libros */
+}
+
+/* --- 1. BANNER SUPERIOR (Limpio) --- */
+.profile-banner {
+  background-color: var(--color-primary); /* Color azul sólido */
+  border-radius: var(--border-radius-md);
+  height: 150px;
+  box-shadow: var(--shadow-md);
+}
+
+/* --- 2. TARJETA PRINCIPAL (La que se superpone) --- */
+.profile-card-main {
+  background-color: var(--color-card-bg);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 25px 30px;
+  margin-top: -80px; /* El solapamiento */
+  position: relative;
+  z-index: 5;
+  border: 1px solid var(--color-border);
+}
+
+/* --- 2a. Cabecera (Avatar, Nombre) --- */
+.profile-info-header {
+  display: flex;
+  align-items: flex-start; /* Alinea el avatar y el texto arriba */
+  gap: 20px;
+  flex-wrap: wrap; 
+  margin-bottom: 25px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.avatar-wrapper {
+  width: 100px; /* Tamaño de avatar profesional */
+  height: 100px;
+  border-radius: 50%; /* Círculo */
+  border: 4px solid var(--color-card-bg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden; 
+  position: relative;
+  background-color: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: -50px; /* Levanta el avatar para que solape el banner */
+}
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem; 
+  font-weight: 700;
+  color: #ffffff; /* Letras blancas */
+}
+
+.profile-titles {
+  flex-grow: 1;
+  padding-top: 10px; /* Baja el texto para alinearlo con el avatar */
+}
+
+.profile-titles h3 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--color-text-dark);
+  font-weight: 700;
+}
+.profile-tagline {
+  font-size: 1.1rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+  margin-bottom: 0;
+}
+
+/* --- 2b. Info de contacto --- */
+.profile-contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px 30px;
+  margin-bottom: 25px;
+  font-size: 0.95rem;
+  color: var(--color-text-medium);
+}
+.profile-contact-info p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.profile-contact-info svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--color-primary); /* Iconos azules */
+  flex-shrink: 0;
+}
+.user-status-active {
+  color: var(--color-success);
+  font-weight: 500;
+}
+.user-status-active svg {
+  fill: var(--color-success);
+}
+
+/* --- 2c. ESTADÍSTICAS DEL PERFIL --- */
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columnas */
+  gap: 15px;
+  margin-top: 20px;
+}
+.stat-item {
+  background-color: var(--color-background); /* Fondo gris claro */
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid var(--color-border);
+  transition: var(--transition-fast);
+}
+.stat-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.stat-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 8px auto; /* Centrado */
+}
+/* Colores de íconos */
+.stat-icon-blue { background-color: var(--color-primary-light); color: var(--color-primary); }
+.stat-icon-green { background-color: var(--color-success-bg); color: var(--color-success); }
+.stat-icon-amber { background-color: var(--color-warning-bg); color: var(--color-warning); }
+
+.stat-icon i { font-size: 1rem; }
+
+.stat-value { 
+  font-size: 1.5rem; 
+  font-weight: 700; 
+  line-height: 1;
+}
+.stat-number-blue { color: var(--color-primary); }
+.stat-number-green { color: var(--color-success); }
+.stat-number-amber { color: #cc8a00; } /* Amarillo más oscuro para texto */
+
+.stat-label { 
+  font-size: 0.9rem; 
+  color: var(--color-text-light); 
+  margin-top: 4px;
+}
+
+/* --- 3. SECCIÓN DE LIBROS --- */
+.favorites-section-new {
+  background-color: var(--color-card-bg);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  padding: 30px;
+}
+.favorites-section-new h3 {
+  font-size: 1.5rem;
+  color: var(--color-text-dark);
+  margin: 0 0 5px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.favorites-section-new h3 svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--color-primary); /* Icono azul */
+}
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-light);
+  margin-bottom: 25px;
+}
+
+/* Cuadrícula de Libros */
+.books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 20px;
+}
+.book-card-item {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transition: var(--transition-fast);
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+}
+.book-card-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+.book-card-image {
+  width: 100%;
+  height: 200px; /* Altura fija para la imagen */
+  border-bottom: 1px solid var(--color-border);
+}
+.book-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Asegura que la imagen llene el espacio */
+  display: block;
+}
+.book-card-content { 
+  padding: 12px; 
+}
+.book-card-content h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.book-card-content p {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- Estados de Carga/Error --- */
+.loading-state, .error-state, .empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--color-text-medium);
+  background-color: var(--color-card-bg);
+  border-radius: var(--border-radius-md);
+  border: 1px dashed var(--color-border);
+}
+.error-state {
+  background-color: #fef2f2;
+  color: #dc3545;
+  border-color: #fecdca;
+}
+.btn-outline {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border: 1px solid var(--color-border);
+  text-decoration: none;
+  display: inline-block;
+  background-color: var(--color-card-bg);
+  color: var(--color-text-dark);
+  margin-top: 1rem;
+}
+.btn-outline:hover {
+  background-color: #f8f9fa;
+}
+
+/* --- Responsividad --- */
+@media (max-width: 768px) {
+  .profile-container { padding: 1rem; }
+  .profile-banner { height: 120px; }
+  .profile-card-main { 
+    margin-top: -60px; /* Ajusta el solapamiento */
+    padding: 20px; 
+    text-align: center; /* Centra el contenido en móvil */
+  }
+  .profile-info-header { 
+    flex-direction: column; 
+    align-items: center; 
+    text-align: center; 
+  }
+  .avatar-wrapper { 
+    width: 120px; 
+    height: 120px; 
+    margin-top: -70px; /* Sube más el avatar */
+    margin-left: 0;
+  }
+  .profile-titles {
+    width: 100%; /* Ocupa todo el ancho */
+  }
+  .profile-stats-grid { 
+    grid-template-columns: 1fr; /* Apila las estadísticas */
+  }
+  .profile-contact-info { 
+    justify-content: center; /* Centra la info de contacto */
+  }
+}
+
+@media (max-width: 480px) {
+  .books-grid { 
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas en móvil */
+    gap: 15px; 
+  }
+  .profile-titles h3 { font-size: 1.5rem; }
+  .stat-item { padding: 15px; }
+}

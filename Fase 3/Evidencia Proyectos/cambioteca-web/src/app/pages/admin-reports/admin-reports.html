@@ -1,0 +1,105 @@
+<div class="admin-container">
+  <div class="header-flex">
+    <h1>Gestión de Reportes</h1>
+    <a routerLink="/admin" class="btn-back">← Volver al Panel</a>
+  </div>
+
+  <div class="tabs">
+    <button [class.active]="currentTab === 'PENDIENTE'" (click)="changeTab('PENDIENTE')">Pendientes</button>
+    <button [class.active]="currentTab === 'RESUELTOS'" (click)="changeTab('RESUELTOS')">Historial Resueltos</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">Cargando reportes...</div>
+
+  <div *ngIf="!isLoading && reports.length === 0" class="empty-state">
+    <p>No hay reportes en esta sección.</p>
+  </div>
+
+  <div class="table-responsive" *ngIf="!isLoading && reports.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Libro Reportado</th>
+          <th>Reportado Por</th>
+          <th>Motivo</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of reports">
+          <td>{{ r.creado_en | date:'shortDate' }}</td>
+          <td>
+            <div class="book-info">
+              <strong>{{ r.libro_titulo }}</strong>
+              <span class="author">{{ r.libro_autor }}</span>
+              <a [routerLink]="['/libros', r.id_libro]" target="_blank" class="link-review">Ver <i class="fa-solid fa-external-link-alt"></i></a>
+            </div>
+          </td>
+          <td>@{{ r.reportador_nombre }}</td>
+          <td>
+            <span class="reason">{{ r.motivo }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getBadgeClass(r.estado)">{{ r.estado }}</span>
+          </td>
+          <td>
+            <button *ngIf="r.estado === 'PENDIENTE'" class="btn-action" (click)="openResolveModal(r)">
+              Gestionar
+            </button>
+            <span *ngIf="r.estado !== 'PENDIENTE'" class="reviewed-by">
+              por @{{ r.revisor_nombre || 'Admin' }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal">
+  <div class="modal-content">
+    <h3>Gestionar Reporte #{{ selectedReport?.id_reporte }}</h3>
+    
+    <div class="report-summary">
+      <p><strong>Motivo:</strong> {{ selectedReport?.motivo }}</p>
+      <p class="desc">"{{ selectedReport?.descripcion || 'Sin descripción adicional.' }}"</p>
+    </div>
+
+    <div class="form-group">
+      <label>Acción a tomar:</label>
+      <div class="radio-group">
+        <label class="radio-label action-approve">
+          <input type="radio" name="action" [(ngModel)]="resolutionData.action" value="APROBADO">
+          <span>✅ Sancionar (Reporte válido)</span>
+        </label>
+        <label class="radio-label action-reject">
+          <input type="radio" name="action" [(ngModel)]="resolutionData.action" value="RECHAZADO">
+          <span>❌ Descartar (Falso reporte)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group checkbox-group" *ngIf="resolutionData.action === 'APROBADO'">
+      <label>
+        <input type="checkbox" [(ngModel)]="resolutionData.banBook">
+        <strong>Dar de baja la publicación</strong> (Cancela intercambios activos)
+      </label>
+    </div>
+
+    <div class="form-group">
+      <label>Comentario administrativo (Interno):</label>
+      <textarea rows="3" [(ngModel)]="resolutionData.comment" placeholder="Ej: Se verificó que es estafa..."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="btn-primary" (click)="submitResolution()" [disabled]="!resolutionData.action || isSubmitting">
+        {{ isSubmitting ? 'Procesando...' : 'Confirmar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<app-notification *ngIf="notificationMessage" [message]="notificationMessage" [type]="notificationType" (close)="clearNotification()"></app-notification>

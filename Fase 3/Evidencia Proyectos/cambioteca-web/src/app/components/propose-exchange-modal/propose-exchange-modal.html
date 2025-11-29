@@ -1,0 +1,63 @@
+<div class="modal-overlay" (click)="requestClose()"> 
+  <div class="modal-content" (click)="$event.stopPropagation()"> 
+    
+    <div class="modal-header">
+      <h3>Proponer Intercambio</h3>
+      <button class="close-btn" (click)="requestClose()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <p class="subtitle">Vas a solicitar: <strong>{{ bookDesiredTitle }}</strong></p>
+      <p class="instruction">Selecciona 1 libro de tu colección para ofrecer:</p>
+
+      <div *ngIf="isLoadingMyBooks" class="loading">Cargando tus libros...</div>
+
+      <!-- LISTA DE SELECCIÓN ÚNICA -->
+      <div class="books-list" *ngIf="!isLoadingMyBooks && myAvailableBooks.length > 0">
+        
+        <div 
+          *ngFor="let book of myAvailableBooks" 
+          class="book-option"
+          [class.selected]="selectedBookId === book.id"
+          (click)="selectBook(book.id)">
+          
+          <!-- Círculo de selección (Radio visual) -->
+          <div class="radio-circle">
+             <div class="radio-inner" *ngIf="selectedBookId === book.id"></div>
+          </div>
+
+          <!-- Info del Libro -->
+          <div class="book-info-row">
+             <img [src]="book.first_image || 'assets/icon/librodefecto.png'" alt="Portada" class="mini-cover">
+             <div class="book-text">
+               <span class="book-title">{{ book.titulo }}</span>
+               <span class="book-author">{{ book.autor }}</span>
+             </div>
+          </div>
+        </div>
+
+      </div>
+      
+      <!-- Mensaje si no hay libros -->
+      <div *ngIf="!isLoadingMyBooks && myAvailableBooks.length === 0 && !errorMessage" class="empty-state">
+        <p>No tienes libros disponibles para intercambiar.</p>
+      </div>
+
+      <!-- Mensajes de error -->
+      <div *ngIf="errorMessage" class="message error">{{ errorMessage }}</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="requestClose()" [disabled]="isSubmitting">
+        Cancelar
+      </button>
+      <button 
+        class="btn-confirm" 
+        (click)="submitProposal()" 
+        [disabled]="isSubmitting || !selectedBookId">
+        {{ isSubmitting ? 'Enviando...' : 'Enviar Propuesta' }} 
+      </button>
+    </div>
+
+  </div>
+</div>

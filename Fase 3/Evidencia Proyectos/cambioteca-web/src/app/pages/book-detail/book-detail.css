@@ -1,0 +1,452 @@
+/* --- VARIABLES (Paleta Terracota & UI) --- */
+:host {
+  --primary: #aa9797;
+  --primary-dark: #8a7878;
+  --primary-light: #f4f1f1;
+  
+  --text-main: #2c3e50;
+  --text-secondary: #636e72;
+  --text-light: #b2bec3;
+  
+  --bg-page: #f8f9fa;
+  --bg-card: #ffffff;
+  
+  --success: #27ae60;
+  --success-bg: #eafaf1;
+  --danger: #e74c3c;
+  --danger-bg: #fdedec;
+  --warning: #f1c40f;
+  
+  --shadow-soft: 0 10px 25px rgba(0,0,0,0.05);
+  --shadow-hover: 0 15px 35px rgba(0,0,0,0.1);
+  
+  --radius-lg: 16px;
+  --radius-md: 8px;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.detail-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- GRID PRINCIPAL (Imagen izq / Info der) --- */
+.book-detail-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr; /* Imagen fija 350px, resto info */
+  gap: 40px;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 40px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* --- SECCIÓN DE IMAGEN --- */
+.book-image-section {
+  width: 100%;
+  position: relative;
+}
+
+.book-image-section img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2/3; /* Proporción libro */
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: 5px 5px 15px rgba(0,0,0,0.15); /* Sombra realista de libro */
+  transition: transform 0.3s ease;
+}
+
+.book-image-section img:hover {
+  transform: scale(1.02);
+}
+
+/* --- SECCIÓN DE INFORMACIÓN --- */
+.book-info-section {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Botón de Favorito (Flotante arriba a la derecha de la info) */
+.favorite-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #ccc; /* Corazón apagado */
+  transition: transform 0.2s, color 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.2);
+}
+
+.favorite-btn .favorited {
+  color: #ff4757; /* Rojo pasión */
+  filter: drop-shadow(0 2px 4px rgba(255, 71, 87, 0.3));
+}
+
+/* Títulos */
+h1 {
+  font-size: 2.5rem;
+  color: var(--text-main);
+  margin: 0 0 10px 0;
+  padding-right: 50px; /* Espacio para el botón de fav */
+  line-height: 1.2;
+}
+
+.author {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+/* Estado (Disponible/No) */
+.status {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+  width: fit-content;
+}
+
+.status.available {
+  background-color: var(--success-bg);
+  color: var(--success);
+  border: 1px solid #c3e6cb;
+}
+
+.status.unavailable {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid #f5c6cb;
+}
+
+/* Detalles (Grid de características) */
+h3 {
+  font-size: 1.1rem;
+  color: var(--text-main);
+  margin-bottom: 15px;
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 5px;
+  display: inline-block;
+}
+
+.details-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.details-list div {
+  background-color: var(--bg-page);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  border: 1px solid #eee;
+}
+
+.details-list strong {
+  display: block;
+  color: var(--primary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+/* Descripción */
+.description {
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-bottom: 30px;
+  white-space: pre-line; /* Respeta saltos de línea */
+}
+
+/* Información del Dueño */
+.owner-info {
+  background-color: var(--primary-light);
+  padding: 15px 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.owner-link {
+  color: var(--primary-dark);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.owner-link:hover {
+  text-decoration: underline;
+}
+
+/* --- BOTONES DE ACCIÓN (El área clave) --- */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin-top: auto; /* Empuja los botones al final */
+  border-top: 1px solid #eee;
+  padding-top: 25px;
+}
+
+/* Botón Principal: Intercambiar */
+.btn-exchange {
+  background-color: var(--primary);
+  color: white;
+  padding: 12px 30px;
+  border-radius: 30px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(170, 151, 151, 0.4);
+}
+
+.btn-exchange:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(170, 151, 151, 0.6);
+}
+
+/* Botón Volver */
+.btn-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: color 0.2s;
+}
+
+.btn-back:hover {
+  color: var(--text-main);
+}
+
+/* Botón Reportar (Discreto pero accesible) */
+.btn-report {
+  margin-left: auto; /* Lo empuja a la derecha del todo */
+  background: transparent;
+  border: 1px solid #fab1a0;
+  color: #e17055;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-report:hover {
+  background-color: #e17055;
+  color: white;
+  border-color: #e17055;
+}
+
+/* Mensajes de estado dentro de actions */
+.info-message {
+  color: var(--text-light);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.info-message.unavailable {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* --- MENSAJES DE CARGA/ERROR (Globales) --- */
+.message {
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+}
+
+.message.error {
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-radius: var(--radius-md);
+  margin: 20px 0;
+}
+
+/* --- MODAL DE REPORTE (Estilos específicos) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content.report-modal {
+  background: white;
+  padding: 30px;
+  border-radius: var(--radius-lg);
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-hover);
+  border-top: 6px solid var(--danger); /* Línea roja superior */
+  animation: slideUp 0.3s ease;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: var(--text-main);
+}
+
+.modal-form-group {
+  margin-bottom: 20px;
+}
+
+.modal-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.modal-form-group select,
+.modal-form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border 0.2s;
+  box-sizing: border-box; /* Importante para que no se salga */
+}
+
+.modal-form-group select:focus,
+.modal-form-group textarea:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+}
+
+.btn-secondary {
+  background: #eee;
+  color: var(--text-main);
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+
+.btn-danger:disabled {
+  background: #fab1a0;
+  cursor: not-allowed;
+}
+
+/* --- ANIMACIONES --- */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 850px) {
+  .book-detail-grid {
+    grid-template-columns: 1fr; /* Una sola columna */
+    padding: 20px;
+  }
+
+  .book-image-section {
+    max-width: 300px;
+    margin: 0 auto 20px auto; /* Centrar imagen */
+  }
+  
+  h1 {
+    font-size: 2rem;
+    text-align: center;
+    padding-right: 0;
+  }
+  
+  .favorite-btn {
+    position: relative; /* Ya no absoluto */
+    display: block;
+    margin: 0 auto 10px auto; /* Centrado arriba del título */
+  }
+
+  .author {
+    text-align: center;
+  }
+
+  .status {
+    display: block;
+    margin: 0 auto 30px auto; /* Centrado */
+    text-align: center;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .btn-exchange, .btn-back, .btn-report {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    margin-left: 0;
+  }
+}

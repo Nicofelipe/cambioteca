@@ -1,0 +1,337 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.admin-management-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+/* ===== HEADER ===== */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: var(--color-text-default, #2c3e50);
+  font-weight: 700;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--color-panel-bg, #f8f9fa);
+  color: var(--color-text-medium, #555);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 500;
+  border: 1px solid var(--color-border-light, #e0e0e0);
+  transition: all 0.2s ease;
+}
+
+.btn-back:hover {
+  background-color: var(--color-primary-light, #f5f3f3);
+  color: var(--color-primary, #aa9797);
+  border-color: var(--color-primary, #aa9797);
+}
+
+/* ===== MENSAJES DE ESTADO ===== */
+.admin-message {
+  padding: 16px 20px;
+  border-radius: 8px;
+  background-color: var(--color-panel-bg, #f8f9fa);
+  color: var(--color-text-medium, #555);
+  text-align: center;
+  margin-bottom: 20px;
+  border: 1px solid var(--color-border-light, #e0e0e0);
+}
+
+.admin-message.error {
+  background-color: #fef2f2;
+  color: var(--color-error, #dc3545);
+  border-color: #fecaca;
+}
+
+/* ===== CONTENEDOR DE TABLA ===== */
+.table-container {
+  background: var(--color-background, #ffffff);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.07));
+  overflow: hidden;
+  border: 1px solid var(--color-border-light, #e0e0e0);
+}
+
+/* ===== TABLA DE DATOS ===== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.data-table thead {
+  background: linear-gradient(135deg, var(--color-primary, #aa9797) 0%, var(--color-primary-hover, #9a8787) 100%);
+}
+
+.data-table thead th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-primary-contrast, #ffffff);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.data-table tbody tr {
+  border-bottom: 1px solid var(--color-border-light, #e0e0e0);
+  transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+  background-color: var(--color-primary-light, #f5f3f3);
+}
+
+.data-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.data-table tbody td {
+  padding: 14px 12px;
+  color: var(--color-text-medium, #555);
+  vertical-align: middle;
+}
+
+/* Fila vacía */
+.data-table tbody tr td[colspan] {
+  text-align: center;
+  color: var(--color-text-light, #95a5a6);
+  font-style: italic;
+  padding: 30px;
+}
+
+/* ===== CHIPS DE ESTADO ===== */
+.status-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background-color: #f3f4f6;
+  color: var(--color-text-light, #95a5a6);
+}
+
+.status-chip.active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-chip.verified {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+/* ===== CELDA DE ACCIONES ===== */
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ===== BOTONES DE ACCIÓN ===== */
+.btn-action {
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Botón Habilitar */
+.btn-enable {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.btn-enable:hover:not(:disabled) {
+  background-color: #a7f3d0;
+  transform: translateY(-1px);
+}
+
+/* Botón Deshabilitar */
+.btn-disable {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.btn-disable:hover:not(:disabled) {
+  background-color: #fcd34d;
+  transform: translateY(-1px);
+}
+
+/* Botón Eliminar */
+.btn-delete {
+  background-color: #fee2e2;
+  color: var(--color-error, #dc3545);
+  border: 1px solid #fecaca;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background-color: #fecaca;
+  transform: translateY(-1px);
+}
+
+/* Botón Secundario */
+.btn-secondary {
+  background-color: var(--color-panel-bg, #f8f9fa);
+  color: var(--color-text-medium, #555);
+  border: 1px solid var(--color-border-light, #e0e0e0);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-border-light, #e0e0e0);
+  transform: translateY(-1px);
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: var(--color-background, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 450px;
+  width: 100%;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirmation-modal {
+  padding: 30px;
+}
+
+.confirmation-modal h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.3rem;
+  color: var(--color-text-default, #2c3e50);
+  font-weight: 700;
+}
+
+.confirmation-modal p {
+  margin: 0 0 20px 0;
+  color: var(--color-text-medium, #555);
+  line-height: 1.5;
+}
+
+.modal-error {
+  margin-bottom: 15px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.modal-actions .btn-action {
+  padding: 10px 20px;
+  font-size: 0.85rem;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .data-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-management-container {
+    padding: 20px 15px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .confirmation-modal {
+    padding: 20px;
+  }
+
+  .confirmation-modal h3 {
+    font-size: 1.1rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn-action {
+    width: 100%;
+    justify-content: center;
+  }
+}

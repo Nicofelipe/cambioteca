@@ -1,0 +1,116 @@
+<div class="detail-container">
+  
+  <div *ngIf="isLoading" class="message">Cargando detalles...</div>
+  <div *ngIf="error && !isLoading" class="message error">{{ error }}</div>
+
+  <div *ngIf="book && !isLoading" class="book-detail-grid">
+    
+    <div class="book-image-section">
+      <img [src]="getMainImageUrl()" 
+           (error)="onMainImageError($event)" 
+           alt="Portada de {{ book.titulo }}">
+    </div>
+    <div class="book-info-section">
+      
+      <button 
+        *ngIf="currentUser"
+        class="favorite-btn" 
+        (click)="toggleFavorite()" 
+        [disabled]="isTogglingFavorite"
+        title="{{ isFavorite(book?.id) ? 'Quitar de Favoritos' : 'Añadir a Favoritos' }}">
+        <span [class.favorited]="isFavorite(book?.id)">❤️</span> 
+      </button>
+      
+      <h1>{{ book.titulo }}</h1>
+      
+      <p class="author">por {{ book.autor }}</p>
+      <div class="status" [ngClass]="book.disponible ? 'available' : 'unavailable'">
+        {{ book.disponible ? '✔ Disponible' : '✖ No Disponible' }}
+      </div>
+
+      <h3>Detalles del Libro</h3>
+      <div class="details-list">
+        <div><strong>Género:</strong> {{ book.genero_nombre }}</div>
+        <div><strong>Estado Físico:</strong> {{ book.estado }}</div>
+        <div><strong>Editorial:</strong> {{ book.editorial }}</div>
+        <div><strong>Año:</strong> {{ book.anio_publicacion }}</div>
+        <div><strong>Tapa:</strong> {{ book.tipo_tapa }}</div>
+      </div>
+      
+      <h3>Descripción</h3>
+      <p class="description">{{ book.descripcion }}</p>
+
+      <div class="owner-info">
+        <strong>Publicado por:</strong> 
+        <a [routerLink]="['/usuario', book.owner_id]" class="owner-link">{{ book.owner_nombre }}</a>
+      </div>
+
+      <div class="actions">
+        <button *ngIf="currentUser && currentUser.id !== book.owner_id && book.disponible" class="btn-exchange" (click)="openProposalModal()">Proponer Intercambio</button>
+        <span *ngIf="currentUser && currentUser.id === book.owner_id" class="info-message">Este es tu libro.</span>
+        <span *ngIf="!book.disponible" class="info-message unavailable">No disponible.</span>
+        <a routerLink="/catalogo" class="btn-back">← Volver</a> 
+        
+        <button *ngIf="currentUser && currentUser.id !== book.owner_id" 
+                class="btn-report" 
+                (click)="openReportModal()"
+                title="Reportar publicación">
+            <i class="fa-solid fa-flag"></i> Reportar
+        </button>
+      </div>
+
+      </div> 
+  </div> 
+</div> 
+
+<app-notification
+  *ngIf="notificationMessage"
+  [message]="notificationMessage"
+  [type]="notificationType"
+  (close)="clearNotification()">
+</app-notification>
+
+<app-propose-exchange-modal *ngIf="showProposalModal" [bookDesiredId]="book?.id" [bookDesiredTitle]="book?.titulo"
+  (closeModal)="closeProposalModal()" (proposalSuccess)="handleProposalSuccess($event)" (proposalError)="handleProposalError($event)"> 
+</app-propose-exchange-modal>
+
+<div class="modal-overlay" *ngIf="showReportModal">
+  <div class="modal-content report-modal">
+    <h3>Reportar Publicación</h3>
+    <p>Ayúdanos a mantener la comunidad segura. ¿Por qué quieres reportar este libro?</p>
+    
+    <form (ngSubmit)="submitReport()">
+      <div class="modal-form-group">
+        <label for="motivo">Motivo *</label>
+        <select id="motivo" [(ngModel)]="reportData.motivo" name="motivo" required>
+          <option value="" disabled selected>Selecciona un motivo...</option>
+          <option value="Contenido Inapropiado">Contenido Inapropiado</option>
+          <option value="Información Falsa">Información Falsa</option>
+          <option value="Estafa / Spam">Estafa / Spam</option>
+          <option value="Derechos de Autor">Derechos de Autor</option>
+          <option value="Otro">Otro</option>
+        </select>
+      </div>
+
+      <div class="modal-form-group">
+        <label for="descripcion">Detalles adicionales (Opcional)</label>
+        <textarea id="descripcion" 
+                  [(ngModel)]="reportData.descripcion" 
+                  name="descripcion" 
+                  rows="3" 
+                  placeholder="Describe brevemente el problema..."></textarea>
+      </div>
+
+      <div *ngIf="reportError" class="modal-error">
+        {{ reportError }}
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" (click)="closeReportModal()" [disabled]="isSubmittingReport">Cancelar</button>
+        <button type="submit" class="btn-danger" [disabled]="isSubmittingReport || !reportData.motivo">
+          {{ isSubmittingReport ? 'Enviando...' : 'Enviar Reporte' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
